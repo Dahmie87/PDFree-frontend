@@ -11,7 +11,7 @@ import {
   Globe, 
 } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_PDFREE_API_BASE_URL ?? '/api';
+const API_BASE = import.meta.env.VITE_PDFREE_API_BASE_URL ?? 'http://localhost:8000';
 
 const getFilenameFromDisposition = (contentDisposition: string | null) => {
   if (!contentDisposition) {
@@ -295,7 +295,7 @@ const PDFreeLanding = () => {
 
               <button
                 type="submit"
-                disabled={isGenerating || backendStatus === 'offline'}
+                disabled={isGenerating}
                 className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-purple-600 px-5 py-4 text-sm font-bold text-white transition hover:bg-purple-500 disabled:cursor-not-allowed disabled:bg-slate-700"
               >
                 {isGenerating ? 'Generating PDF...' : 'Generate PDF'}
