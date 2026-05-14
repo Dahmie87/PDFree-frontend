@@ -1,6 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, Loader, CheckCircle2, AlertCircle, Trash2, History, Settings, Zap, Scale, BookOpen, Microscope, Cog, Sparkles } from 'lucide-react';
+import { Download, Loader, CheckCircle2, AlertCircle, Trash2, History, Settings, Zap, Scale, BookOpen, Microscope, Cog, Sparkles, Send, Brain, Lightbulb, Palette } from 'lucide-react';
 import PatternBackdrop from '../components/pattern-backdrop';
 
 interface GeneratedBook {
@@ -9,6 +9,20 @@ interface GeneratedBook {
   filename: string;
   timestamp: number;
   blob?: Blob;
+}
+
+interface Message {
+  id: string;
+  type: 'user' | 'agent';
+  content: string;
+  timestamp: number;
+}
+
+interface ThinkingStep {
+  id: string;
+  action: string;
+  status: 'pending' | 'in-progress' | 'completed';
+  duration?: number;
 }
 
 const API_BASE = 'http://localhost:8000';
@@ -21,11 +35,17 @@ const GeneratorPage = () => {
   const [generatedBooks, setGeneratedBooks] = useState<GeneratedBook[]>([]);
   const [showCustomization, setShowCustomization] = useState(false);
   const [generationStage, setGenerationStage] = useState('');
+  
+  // Chat and thinking process
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [thinkingSteps, setThinkingSteps] = useState<ThinkingStep[]>([]);
 
   // Customization options
   const [model, setModel] = useState('gpt-4');
   const [speedLength, setSpeedLength] = useState('balanced');
   const [mode, setMode] = useState('creative');
+  const [theme, setTheme] = useState('professional');
+  const [connectModel, setConnectModel] = useState('default');
   const [pageLength, setPageLength] = useState(20);
   const [temperature, setTemperature] = useState(0.7);
   const [numPages, setNumPages] = useState(20);
@@ -61,25 +81,45 @@ const GeneratorPage = () => {
     setError('');
     setSuccess('');
     setGenerationStage('Initializing book generation...');
+    
+    // Add user message to chat
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: trimmedPrompt,
+      timestamp: Date.now(),
+    };
+    setMessages((prev) => [...prev, userMessage]);
+    
+    // Add thinking steps
+    const steps: ThinkingStep[] = [
+      { id: '1', action: 'Analyzing your request and context', status: 'pending' },
+      { id: '2', action: 'Structuring book outline', status: 'pending' },
+      { id: '3', action: 'Generating table of contents', status: 'pending' },
+      { id: '4', action: 'Writing chapters and content', status: 'pending' },
+      { id: '5', action: 'Applying theme and styling', status: 'pending' },
+      { id: '6', action: 'Compiling PDF', status: 'pending' },
+    ];
+    setThinkingSteps(steps);
 
     try {
-      // Simulate progress stages
-      const stages = [
-        'Analyzing your prompt...',
-        'Generating book structure...',
-        'Creating table of contents...',
-        'Writing chapters...',
-        'Formatting and styling...',
-        'Compiling PDF...',
-      ];
-
-      let stageIndex = 0;
-      const stageInterval = setInterval(() => {
-        if (stageIndex < stages.length - 1) {
-          stageIndex++;
-          setGenerationStage(stages[stageIndex]);
+      // Simulate step progression
+      let currentStep = 0;
+      const stepInterval = setInterval(() => {
+        if (currentStep < steps.length) {
+          setThinkingSteps((prev) => {
+            const updated = [...prev];
+            if (currentStep > 0) {
+              updated[currentStep - 1].status = 'completed';
+            }
+            if (currentStep < steps.length) {
+              updated[currentStep].status = 'in-progress';
+            }
+            return updated;
+          });
+          currentStep++;
         }
-      }, 3000); // Change stage every 3 seconds
+      }, 2000);
 
       const response = await fetch(`${API_BASE}/generate-book`, {
         method: 'POST',
@@ -89,10 +129,17 @@ const GeneratorPage = () => {
           page_length: pageLength,
           temperature: temperature,
           num_pages: numPages,
+          theme: theme,
+          mode: mode,
         }),
       });
 
-      clearInterval(stageInterval);
+      clearInterval(stepInterval);
+      
+      // Mark all steps as completed
+      setThinkingSteps((prev) =>
+        prev.map((step) => ({ ...step, status: 'completed' }))
+      );
 
       if (!response.ok) {
         let errorDetail = 'Generation failed.';
@@ -112,6 +159,15 @@ const GeneratorPage = () => {
       const pdfBlob = await response.blob();
       const objectUrl = window.URL.createObjectURL(pdfBlob);
       const filename = getFilenameFromDisposition(response.headers.get('content-disposition'));
+
+      // Add agent message to chat
+      const agentMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'agent',
+        content: `✓ Generated "${filename}" successfully!\n\nYour book has been created with ${mode} writing style using the ${theme} theme.`,
+        timestamp: Date.now(),
+      };
+      setMessages((prev) => [...prev, agentMessage]);
 
       // Add to history
       const newBook: GeneratedBook = {
@@ -184,7 +240,7 @@ const GeneratorPage = () => {
 
               <div className="mb-6">
                 <label className="block text-sm font-bold text-slate-700 mb-3">Customization</label>
-                <div className="grid grid-cols-3 gap-4 mb-6 md:grid-cols-1 lg:grid-cols-3">
+                <div className="grid grid-cols-2 gap-4 mb-6 md:grid-cols-1 lg:grid-cols-3">
                   {/* Model Selection */}
                   <div>
                     <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
@@ -235,20 +291,161 @@ const GeneratorPage = () => {
                       <option value="creative" className="bg-white">Creative (Storytelling)</option>
                     </select>
                   </div>
+
+                  {/* Connect Your Model */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
+                      <Cog className="w-3 h-3" />
+                      Connect Your Model
+                    </label>
+                    <select
+                      value={connectModel}
+                      onChange={(e) => setConnectModel(e.target.value)}
+                      className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                    >
+                      <option value="default">Default (PDFree)</option>
+                      <option value="custom-api">Custom API Key</option>
+                      <option value="enterprise">Enterprise</option>
+                    </select>
+                  </div>
+
+                  {/* Theme or Style */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
+                      <Palette className="w-3 h-3" />
+                      Theme or Style
+                    </label>
+                    <select
+                      value={theme}
+                      onChange={(e) => setTheme(e.target.value)}
+                      className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                    >
+                      <option value="professional">Professional</option>
+                      <option value="minimal">Minimal</option>
+                      <option value="colorful">Colorful</option>
+                      <option value="academic">Academic</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm font-bold text-slate-700 mb-3">Your Prompt</label>
-                <textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  rows={7}
-                  placeholder="Describe your book. Example: Write a comprehensive guide to Python for beginners..."
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-base text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
-                />
+                <label className="block text-sm font-bold text-slate-700 mb-3">Your Request</label>
+                <div className="flex gap-3">
+                  <textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    rows={4}
+                    placeholder="Tell me what book you'd like to create..."
+                    className="flex-1 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-base text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isGenerating || prompt.trim().length < 5}
+                    className="self-end py-4 px-4 bg-purple-600 text-white font-bold rounded-2xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md shadow-purple-600/30"
+                  >
+                    <Send className="w-5 h-5" />
+                  </button>
+                </div>
                 <p className="text-xs text-slate-500 mt-2">Minimum 5 characters • Max 5000 characters</p>
               </div>
+
+              {/* Chat Conversation */}
+              {messages.length > 0 && (
+                <div className="mb-6 max-h-64 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+                  <AnimatePresence>
+                    {messages.map((msg) => (
+                      <motion.div
+                        key={msg.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-xs px-4 py-2 rounded-lg ${
+                            msg.type === 'user'
+                              ? 'bg-purple-600 text-white rounded-br-none'
+                              : 'bg-white border border-slate-200 text-slate-900 rounded-bl-none'
+                          }`}
+                        >
+                          <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              )}
+
+              {/* Thinking/Action Steps */}
+              {thinkingSteps.length > 0 && isGenerating && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 rounded-2xl p-6 border border-slate-200 bg-blue-50"
+                >
+                  <div className="flex items-center gap-2 mb-4">
+                    <Brain className="w-5 h-5 text-blue-600" />
+                    <h3 className="font-bold text-slate-900">Agent Thinking Process</h3>
+                  </div>
+                  <div className="space-y-2">
+                    <AnimatePresence>
+                      {thinkingSteps.map((step, idx) => (
+                        <motion.div
+                          key={step.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 10 }}
+                          className="flex items-start gap-3"
+                        >
+                          {step.status === 'completed' && (
+                            <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+                          )}
+                          {step.status === 'in-progress' && (
+                            <Loader className="w-5 h-5 text-blue-600 shrink-0 mt-0.5 animate-spin" />
+                          )}
+                          {step.status === 'pending' && (
+                            <div className="w-5 h-5 rounded-full border-2 border-slate-300 shrink-0 mt-0.5" />
+                          )}
+                          <span
+                            className={`text-sm pt-0.5 ${
+                              step.status === 'completed'
+                                ? 'text-slate-600 line-through'
+                                : step.status === 'in-progress'
+                                ? 'text-blue-700 font-semibold'
+                                : 'text-slate-600'
+                            }`}
+                          >
+                            {step.action}
+                          </span>
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </div>
+                </motion.div>
+              )}
+
+              {isGenerating && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 rounded-2xl p-6 border border-blue-200 bg-blue-50"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <Loader className="w-5 h-5 text-blue-600 animate-spin" />
+                    <h3 className="font-bold text-slate-900">Generating Your Book</h3>
+                  </div>
+                  <div className="w-full bg-blue-200 rounded-full h-2 border border-blue-300">
+                    <motion.div
+                      initial={{ width: '0%' }}
+                      animate={{ width: '85%' }}
+                      transition={{ duration: 8 }}
+                      className="bg-blue-600 h-2 rounded-full"
+                    />
+                  </div>
+                  <p className="text-xs text-slate-600 mt-2">Processing your request...</p>
+                </motion.div>
+              )}
 
               {error && (
                 <motion.div
@@ -276,22 +473,21 @@ const GeneratorPage = () => {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-6 rounded-2xl p-6 border border-slate-200 bg-white"
+                  className="mb-6 rounded-2xl p-6 border border-blue-200 bg-blue-50"
                 >
                   <div className="flex items-center gap-3 mb-4">
                     <Loader className="w-5 h-5 text-blue-600 animate-spin" />
                     <h3 className="font-bold text-slate-900">Generating Your Book</h3>
                   </div>
-                  <p className="text-sm text-slate-700 mb-4">{generationStage}</p>
-                  <div className="w-full bg-blue-100 rounded-full h-2 border border-blue-200">
+                  <div className="w-full bg-blue-200 rounded-full h-2 border border-blue-300">
                     <motion.div
                       initial={{ width: '0%' }}
-                      animate={{ width: '90%' }}
-                      transition={{ duration: isGenerating ? 8 : 0 }}
-                      className="bg-purple-700 h-2 rounded-full"
+                      animate={{ width: '85%' }}
+                      transition={{ duration: 8 }}
+                      className="bg-blue-600 h-2 rounded-full"
                     />
                   </div>
-                  <p className="text-xs text-slate-600 mt-2">This typically takes 1-2 minutes...</p>
+                  <p className="text-xs text-slate-600 mt-2">Processing your request...</p>
                 </motion.div>
               )}
 
@@ -365,7 +561,7 @@ const GeneratorPage = () => {
                           </button>
                           <button
                             onClick={() => deleteBook(book.id)}
-                            className="flex items-center justify-center glass-sm text-red-600 p-2 rounded-lg hover:bg-red-50 transition border border-red-100/50"
+                            className="flex items-center justify-center text-red-600 p-2 rounded-lg hover:bg-red-50 transition border border-red-200"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
