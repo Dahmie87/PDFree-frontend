@@ -1,11 +1,13 @@
 import { motion } from 'framer-motion';
 import { Heart, Users, Zap, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import PatternBackdrop from '../components/pattern-backdrop';
 
 const AboutPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 pt-24 pb-16">
-      <div className="max-w-7xl mx-auto px-6">
+    <div className="relative min-h-screen bg-white pt-24 pb-16 overflow-hidden">
+      <PatternBackdrop tone="light" />
+      <div className="relative z-10 max-w-7xl mx-auto px-6">
         {/* Hero */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -27,7 +29,7 @@ const AboutPage = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="mb-20 rounded-3xl border border-slate-200 bg-gradient-to-br from-purple-50 to-indigo-50 p-12"
+          className="mb-20 glass rounded-3xl p-12 shadow-lg"
         >
           <h2 className="text-3xl font-bold text-slate-900 mb-6">Our Mission</h2>
           <p className="text-lg text-slate-700 leading-relaxed">
@@ -75,7 +77,7 @@ const AboutPage = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: idx * 0.15 }}
                   viewport={{ once: true }}
-                  className="rounded-2xl border border-slate-200 bg-white p-8 hover:shadow-lg transition-all"
+                  className="glass rounded-2xl p-8 hover:shadow-lg transition-all"
                 >
                   <div className="bg-purple-100 p-3 rounded-xl w-fit mb-4">
                     <Icon className="w-6 h-6 text-purple-600" />
@@ -94,7 +96,7 @@ const AboutPage = () => {
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="mb-20 rounded-3xl bg-gradient-to-r from-slate-900 to-slate-800 text-white p-12"
+          className="mb-20 rounded-3xl bg-purple-950 text-white p-12"
         >
           <h2 className="text-3xl font-bold mb-12 text-center">By The Numbers</h2>
           <div className="grid md:grid-cols-4 gap-8 text-center">
@@ -175,7 +177,7 @@ const AboutPage = () => {
                 viewport={{ once: true }}
                 className="rounded-2xl border border-slate-200 bg-white p-8 text-center hover:shadow-lg transition-all"
               >
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-400 to-indigo-600 mx-auto mb-4" />
+                <div className="w-16 h-16 rounded-full bg-purple-300 mx-auto mb-4" />
                 <h3 className="text-lg font-bold text-slate-900">{member.name}</h3>
                 <p className="text-purple-600 font-semibold text-sm mb-3">{member.role}</p>
                 <p className="text-slate-600">{member.bio}</p>

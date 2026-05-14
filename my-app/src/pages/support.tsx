@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MessageCircle, Mail, Book, AlertCircle, ChevronDown } from 'lucide-react';
+import PatternBackdrop from '../components/pattern-backdrop';
 
 const SupportPage = () => {
   const [openFAQ, setOpenFAQ] = useState<number | null>(0);
@@ -62,8 +63,9 @@ const SupportPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 pt-24 pb-16">
-      <div className="max-w-4xl mx-auto px-6">
+    <div className="relative min-h-screen bg-white pt-24 pb-16 overflow-hidden">
+      <PatternBackdrop tone="light" />
+      <div className="relative z-10 max-w-4xl mx-auto px-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -90,7 +92,7 @@ const SupportPage = () => {
               <motion.div
                 key={idx}
                 whileHover={{ y: -5 }}
-                className="rounded-2xl border border-slate-200 bg-white p-8 text-center hover:shadow-lg transition-all"
+                className="glass rounded-2xl p-8 text-center hover:shadow-lg transition-all group"
               >
                 <div className="bg-purple-100 p-4 rounded-xl w-fit mx-auto mb-4">
                   <Icon className="w-6 h-6 text-purple-600" />
@@ -126,11 +128,11 @@ const SupportPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: idx * 0.05 }}
                 viewport={{ once: true }}
-                className="rounded-2xl border border-slate-200 bg-white overflow-hidden hover:shadow-md transition-all"
+                className="glass rounded-2xl overflow-hidden hover:shadow-md transition-all"
               >
                 <button
                   onClick={() => setOpenFAQ(openFAQ === idx ? null : idx)}
-                  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-50 transition"
+                  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-purple-50/50 transition"
                 >
                   <h3 className="font-bold text-slate-900 text-lg">{faq.question}</h3>
                   <motion.div
@@ -165,7 +167,7 @@ const SupportPage = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-12"
+          className="glass rounded-3xl p-12 shadow-lg"
         >
           <h2 className="text-3xl font-bold text-slate-900 mb-2">Send Us Feedback</h2>
           <p className="text-slate-600 mb-8">
@@ -178,7 +180,7 @@ const SupportPage = () => {
               <input
                 type="email"
                 placeholder="your@email.com"
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="w-full rounded-xl glass-sm px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
               />
             </div>
 
@@ -187,7 +189,7 @@ const SupportPage = () => {
               <input
                 type="text"
                 placeholder="What's your question or suggestion?"
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="w-full rounded-xl glass-sm px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
               />
             </div>
 
@@ -196,13 +198,13 @@ const SupportPage = () => {
               <textarea
                 rows={6}
                 placeholder="Tell us what's on your mind..."
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="w-full rounded-xl glass-sm px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-purple-500/50"
+              className="w-full py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 transition-all shadow-lg shadow-purple-600/30 hover:shadow-xl hover:shadow-purple-600/40"
             >
               Send Message
             </button>
@@ -215,10 +217,10 @@ const SupportPage = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
           viewport={{ once: true }}
-          className="mt-20 rounded-2xl border border-green-200 bg-green-50 p-6"
+          className="mt-20 glass rounded-2xl p-6"
         >
           <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 mt-1">
+            <div className="shrink-0 mt-1">
               <div className="flex h-5 w-5 items-center justify-center rounded-full bg-green-500">
                 <svg className="h-3 w-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />

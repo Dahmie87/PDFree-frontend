@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import PatternBackdrop from '../components/pattern-backdrop';
 
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -24,14 +25,15 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center pt-24 pb-16">
+    <div className="relative min-h-screen bg-white flex items-center justify-center pt-24 pb-16 overflow-hidden">
+      <PatternBackdrop tone="light" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-md"
+        className="relative z-10 w-full max-w-md"
       >
-        <div className="rounded-3xl border border-purple-500/20 bg-gradient-to-b from-slate-800 to-slate-900 p-8 shadow-2xl backdrop-blur-xl">
+        <div className="glass rounded-3xl p-8 shadow-lg">
           {/* Header */}
           <div className="text-center mb-8">
             <Link to="/" className="inline-flex items-center gap-2 group mb-6">
@@ -39,10 +41,10 @@ const LoginPage = () => {
                 <FileText className="text-white w-5 h-5" />
               </div>
             </Link>
-            <h1 className="text-3xl font-bold text-white mb-2">
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">
               {isLogin ? 'Welcome Back' : 'Join PDFree'}
             </h1>
-            <p className="text-slate-400">
+            <p className="text-slate-600">
               {isLogin
                 ? 'Sign in to your account to continue'
                 : 'Create an account to get started'}
@@ -52,37 +54,37 @@ const LoginPage = () => {
           <form onSubmit={handleSubmit} className="space-y-5 mb-6">
             {/* Email Input */}
             <div>
-              <label className="block text-sm font-bold text-slate-300 mb-2">Email Address</label>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
+                <Mail className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="you@example.com"
-                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-white placeholder:text-slate-500 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl glass-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                 />
               </div>
             </div>
 
             {/* Password Input */}
             <div>
-              <label className="block text-sm font-bold text-slate-300 mb-2">Password</label>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Password</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
+                <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
                   placeholder="••••••••"
-                  className="w-full pl-12 pr-12 py-3 rounded-xl border border-slate-700 bg-slate-900 text-white placeholder:text-slate-500 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+                  className="w-full pl-12 pr-12 py-3 rounded-xl glass-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-3.5 text-slate-500 hover:text-slate-400 transition"
+                  className="absolute right-4 top-3.5 text-slate-400 hover:text-slate-600 transition"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -92,16 +94,16 @@ const LoginPage = () => {
             {/* Confirm Password (Register only) */}
             {!isLogin && (
               <div>
-                <label className="block text-sm font-bold text-slate-300 mb-2">Confirm Password</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Confirm Password</label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
+                  <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     placeholder="••••••••"
-                    className="w-full pl-12 pr-12 py-3 rounded-xl border border-slate-700 bg-slate-900 text-white placeholder:text-slate-500 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+                    className="w-full pl-12 pr-12 py-3 rounded-xl glass-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                   />
                 </div>
               </div>
@@ -113,11 +115,11 @@ const LoginPage = () => {
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    className="w-4 h-4 rounded border-slate-700 bg-slate-900 cursor-pointer accent-purple-600"
+                    className="w-4 h-4 rounded border-slate-300 bg-white cursor-pointer accent-purple-600"
                   />
-                  <span className="text-slate-400 hover:text-slate-300">Remember me</span>
+                  <span className="text-slate-600 hover:text-slate-700">Remember me</span>
                 </label>
-                <a href="#" className="text-purple-400 hover:text-purple-300 transition">
+                <a href="#" className="text-purple-600 hover:text-purple-700 transition">
                   Forgot password?
                 </a>
               </div>
@@ -126,7 +128,7 @@ const LoginPage = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:from-purple-500 hover:to-indigo-500 transition-all shadow-lg hover:shadow-purple-500/50"
+              className="w-full py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 transition-all shadow-lg shadow-purple-600/30 hover:shadow-xl hover:shadow-purple-600/40"
             >
               {isLogin ? 'Sign In' : 'Create Account'}
             </button>
@@ -135,17 +137,17 @@ const LoginPage = () => {
           {/* Divider */}
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-700" />
+              <div className="w-full border-t border-slate-300" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="px-2 bg-slate-900 text-slate-500">Or continue with</span>
+              <span className="px-2 bg-white text-slate-500">Or continue with</span>
             </div>
           </div>
 
           {/* Google Button */}
           <button
             type="button"
-            className="w-full py-3 border border-slate-700 rounded-xl text-slate-300 font-bold hover:bg-slate-800/50 transition flex items-center justify-center gap-2"
+            className="w-full py-3 glass-sm rounded-xl text-slate-700 font-bold hover:glass transition flex items-center justify-center gap-2"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -169,12 +171,12 @@ const LoginPage = () => {
           </button>
 
           {/* Toggle Login/Register */}
-          <p className="text-center text-slate-400 mt-6">
+          <p className="text-center text-slate-600 mt-6">
             {isLogin ? "Don't have an account?" : 'Already have an account?'}
             <button
               type="button"
               onClick={() => setIsLogin(!isLogin)}
-              className="ml-2 text-purple-400 hover:text-purple-300 font-bold transition"
+              className="ml-2 text-purple-600 hover:text-purple-700 font-bold transition"
             >
               {isLogin ? 'Sign up' : 'Sign in'}
             </button>
@@ -182,13 +184,13 @@ const LoginPage = () => {
         </div>
 
         {/* Footer Note */}
-        <p className="text-center text-slate-500 text-xs mt-6">
+        <p className="text-center text-slate-600 text-xs mt-6">
           By {isLogin ? 'signing in' : 'creating an account'}, you agree to our{' '}
-          <a href="#" className="text-purple-400 hover:text-purple-300">
+          <a href="#" className="text-purple-600 hover:text-purple-700">
             Terms of Service
           </a>
           {' '}and{' '}
-          <a href="#" className="text-purple-400 hover:text-purple-300">
+          <a href="#" className="text-purple-600 hover:text-purple-700">
             Privacy Policy
           </a>
         </p>

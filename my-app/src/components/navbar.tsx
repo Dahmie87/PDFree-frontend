@@ -22,14 +22,14 @@ const Navbar = () => {
 
   return (
     <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-      scrolled ? 'bg-white/80 backdrop-blur-md border-b border-slate-200 py-3' : 'bg-transparent py-5'
+      scrolled ? 'glass py-3' : 'bg-transparent py-5'
     }`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <Link to="/" className="flex items-center gap-2 group cursor-pointer">
           <div className="bg-purple-600 p-1.5 rounded-lg group-hover:rotate-12 transition-transform">
             <FileText className="text-white w-6 h-6" />
           </div>
-          <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">
+          <span className="text-xl font-bold tracking-tight text-slate-900">
             PDFree
           </span>
         </Link>
@@ -59,19 +59,19 @@ const Navbar = () => {
           </Link>
           <Link
             to="/generate"
-            className="px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-full hover:bg-slate-800 hover:shadow-lg transition-all active:scale-95"
+            className="px-5 py-2.5 glass bg-gradient-to-r from-purple-600/20 to-pink-600/20 text-purple-700 text-sm font-semibold rounded-full hover:from-purple-600/30 hover:to-pink-600/30 transition-all active:scale-95 shadow-lg shadow-purple-200/20"
           >
             Start Free
           </Link>
         </div>
 
-        <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+        <button className="md:hidden text-slate-900" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {isMenuOpen ? <X /> : <Menu />}
         </button>
       </div>
 
       {isMenuOpen && (
-        <div className="md:hidden bg-white border-t border-slate-200 mt-4">
+        <div className="md:hidden glass mt-4 mx-4 rounded-xl">
           <div className="px-6 py-4 space-y-4">
             {navLinks.map(({ path, label }) => (
               <Link

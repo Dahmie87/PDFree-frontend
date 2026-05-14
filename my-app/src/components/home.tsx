@@ -123,7 +123,7 @@ const PDFreeLanding = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-slate-900 font-sans selection:bg-purple-100 selection:text-purple-900">
+    <div className="min-h-screen bg-[#fafafa] text-slate-900 font-sans selection:bg-slate-200 selection:text-slate-900">
       {/* --- NAVBAR --- */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled ? 'bg-white/80 backdrop-blur-md border-b border-slate-200 py-3' : 'bg-transparent py-5'
@@ -133,7 +133,7 @@ const PDFreeLanding = () => {
             <div className="bg-purple-600 p-1.5 rounded-lg group-hover:rotate-12 transition-transform">
               <FileText className="text-white w-6 h-6" />
             </div>
-            <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-linear-to-r from-slate-900 to-slate-600">
+            <span className="text-xl font-bold tracking-tight text-slate-900">
               PDFree
             </span>
           </div>
@@ -165,9 +165,8 @@ const PDFreeLanding = () => {
 
       {/* --- HERO SECTION --- */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
-        {/* Background Decorative Gradients */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-150 bg-linear-to-b from-purple-50/50 to-transparent -z-10" />
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-purple-200/20 blur-3xl rounded-full -z-10" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-150 bg-slate-100 -z-10" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-slate-200/40 blur-3xl rounded-full -z-10" />
         
         <div className="max-w-4xl mx-auto px-6 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 border border-purple-100 text-purple-700 text-xs font-bold uppercase tracking-wider mb-6 animate-fade-in">
@@ -176,7 +175,7 @@ const PDFreeLanding = () => {
           </div>
           
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter text-slate-900 mb-6 leading-[1.1]">
-            PDFs should be <span className="text-purple-600 italic">free</span>. <br />
+            PDFs should be <span className="text-slate-700 italic">free</span>. <br />
             So we made them.
           </h1>
           
@@ -189,7 +188,7 @@ const PDFreeLanding = () => {
             <button
               type="button"
               onClick={() => document.getElementById('generate')?.scrollIntoView({ behavior: 'smooth' })}
-              className="w-full sm:w-auto px-8 py-4 bg-purple-600 text-white font-bold rounded-2xl hover:bg-purple-700 hover:shadow-xl hover:shadow-purple-200 transition-all flex items-center justify-center gap-2 group"
+              className="w-full sm:w-auto px-8 py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-slate-800 hover:shadow-xl transition-all flex items-center justify-center gap-2 group"
             >
               Start Generating Free
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -342,7 +341,7 @@ const PDFreeLanding = () => {
                   <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold">HTML to PDF</span>
                 </div>
               </div>
-              <div className="absolute bottom-0 right-0 w-64 h-64 bg-purple-50 rounded-tl-full -mr-10 -mb-10 group-hover:scale-110 transition-transform duration-500" />
+              <div className="absolute bottom-0 right-0 w-64 h-64 bg-slate-100 rounded-tl-full -mr-10 -mb-10 group-hover:scale-110 transition-transform duration-500" />
             </div>
 
             {/* Feature Card 2 */}
@@ -365,17 +364,17 @@ const PDFreeLanding = () => {
             </div>
 
             {/* Feature Card 4 */}
-            <div className="md:col-span-2 bg-linear-to-br from-purple-600 to-indigo-700 p-10 rounded-4xl text-white flex flex-col md:flex-row items-center justify-between gap-10 overflow-hidden">
+            <div className="md:col-span-2 bg-slate-900 p-10 rounded-4xl text-white flex flex-col md:flex-row items-center justify-between gap-10 overflow-hidden">
               <div className="md:max-w-md">
-                <Globe className="w-8 h-8 mb-6 text-purple-200" />
+                <Globe className="w-8 h-8 mb-6 text-slate-300" />
                 <h3 className="text-2xl font-bold mb-3">Accessible to Everyone</h3>
-                <p className="text-purple-100">The internet was built to share information. We provide the tools to make that happen for everyone, regardless of budget.</p>
+                <p className="text-slate-300">The internet was built to share information. We provide the tools to make that happen for everyone, regardless of budget.</p>
               </div>
               <div className="shrink-0 bg-white/10 backdrop-blur-md p-8 rounded-3xl border border-white/20 scale-110 md:rotate-6">
                 <div className="space-y-3">
-                  <div className="h-2 w-32 bg-white/40 rounded-full" />
-                  <div className="h-2 w-48 bg-white/20 rounded-full" />
-                  <div className="h-2 w-40 bg-white/30 rounded-full" />
+                  <div className="h-2 w-32 bg-slate-400 rounded-full" />
+                  <div className="h-2 w-48 bg-slate-300 rounded-full" />
+                  <div className="h-2 w-40 bg-slate-500 rounded-full" />
                 </div>
               </div>
             </div>
@@ -437,7 +436,7 @@ const PDFreeLanding = () => {
       <section className="py-24">
         <div className="max-w-5xl mx-auto px-6">
             <div className="bg-slate-900 rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.15),transparent)] pointer-events-none" />
+            <div className="absolute top-0 left-0 w-full h-full bg-slate-800 pointer-events-none" />
             
             <h2 className="text-4xl md:text-5xl font-bold mb-8 relative z-10">Stop paying for what <br className="hidden md:block" /> should be yours.</h2>
             <p className="text-slate-400 mb-10 text-lg relative z-10">Join 50k+ users who've already ditched the paywalls.</p>
