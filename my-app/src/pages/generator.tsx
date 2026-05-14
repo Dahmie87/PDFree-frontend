@@ -187,11 +187,14 @@ const GeneratorPage = () => {
                 <div className="grid grid-cols-3 gap-4 mb-6 md:grid-cols-1 lg:grid-cols-3">
                   {/* Model Selection */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-2">Model</label>
+                    <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
+                      <Settings className="w-3 h-3" />
+                      Model
+                    </label>
                     <select
                       value={model}
                       onChange={(e) => setModel(e.target.value)}
-                      className="w-full px-4 py-2 rounded-xl glass-sm text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                      className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                     >
                       <option value="gpt-4" className="bg-white">GPT-4 (Best Quality)</option>
                       <option value="gpt-3.5" className="bg-white">GPT-3.5 (Fast)</option>
@@ -201,29 +204,35 @@ const GeneratorPage = () => {
 
                   {/* Speed vs Length */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-2">Priority</label>
+                    <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
+                      <Scale className="w-3 h-3" />
+                      Priority
+                    </label>
                     <select
                       value={speedLength}
                       onChange={(e) => setSpeedLength(e.target.value)}
-                      className="w-full px-4 py-2 rounded-xl glass-sm text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                      className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                     >
-                      <option value="speed" className="bg-white">⚡ Speed (Faster Generation)</option>
-                      <option value="balanced" className="bg-white">⚖️ Balanced</option>
-                      <option value="length" className="bg-white">📖 Length (More Detail)</option>
+                      <option value="speed" className="bg-white">Speed (Faster Generation)</option>
+                      <option value="balanced" className="bg-white">Balanced</option>
+                      <option value="length" className="bg-white">Length (More Detail)</option>
                     </select>
                   </div>
 
                   {/* Writing Mode */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-2">Writing Mode</label>
+                    <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" />
+                      Writing Mode
+                    </label>
                     <select
                       value={mode}
                       onChange={(e) => setMode(e.target.value)}
-                      className="w-full px-4 py-2 rounded-xl glass-sm text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                      className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                     >
-                      <option value="research" className="bg-white">🔬 Research (Formal)</option>
-                      <option value="technical" className="bg-white">⚙️ Technical (Code Examples)</option>
-                      <option value="creative" className="bg-white">✨ Creative (Storytelling)</option>
+                      <option value="research" className="bg-white">Research (Formal)</option>
+                      <option value="technical" className="bg-white">Technical (Code Examples)</option>
+                      <option value="creative" className="bg-white">Creative (Storytelling)</option>
                     </select>
                   </div>
                 </div>
@@ -336,7 +345,7 @@ const GeneratorPage = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className=\"rounded-xl p-4 group hover:shadow-md transition-all border border-slate-200 bg-white hover:border-slate-300\"
+                        className="rounded-xl p-4 group hover:shadow-md transition-all border border-slate-200 bg-white hover:border-slate-300"
                       >
                         <p className="text-xs font-bold text-slate-700 truncate mb-2">{book.filename}</p>
                         <p className="text-xs text-slate-600 mb-3 line-clamp-2">{book.prompt}</p>
