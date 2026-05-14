@@ -36,7 +36,7 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-white text-slate-900">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
+      <section className="relative py-20 md:py-32 overflow-hidden">
         <PatternBackdrop tone="light" />
         
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
@@ -44,7 +44,7 @@ const Landing = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass bg-purple-50/40 mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white mb-6"
           >
             <Zap className="w-3 h-3 fill-current text-purple-600" />
             <span className="text-xs font-bold uppercase tracking-wider text-purple-700">The Internet's Last Free Tool</span>
@@ -151,7 +151,7 @@ const Landing = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: idx * 0.2 }}
                   viewport={{ once: true }}
-                  className="group glass rounded-3xl p-8 hover:shadow-2xl hover:border-slate-300 transition-all duration-300"
+                  className="group rounded-3xl p-8 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300"
                 >
                   <div className={`bg-gradient-to-br ${useCase.color} p-4 rounded-2xl w-fit mb-6 group-hover:scale-110 transition-transform shadow-lg`}>
                     <Icon className="w-6 h-6 text-white" />
@@ -275,7 +275,7 @@ const Landing = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: idx * 0.1 }}
                   viewport={{ once: true }}
-                  className="glass rounded-2xl p-6 hover:shadow-lg transition-all text-center"
+                  className="rounded-2xl p-6 border border-slate-200 bg-white hover:shadow-md transition-all text-center"
                 >
                   <div className="bg-purple-100 p-3 rounded-xl w-fit mx-auto mb-4">
                     <Icon className="w-6 h-6 text-purple-600" />
@@ -298,7 +298,7 @@ const Landing = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="glass rounded-3xl p-12"
+            className="rounded-3xl p-12 border border-slate-200 bg-white"
           >
             <h2 className="text-4xl font-bold text-slate-900 mb-6">Ready to Get Started?</h2>
             <p className="text-lg text-slate-600 mb-10">Generate your first book in under 2 minutes.</p>

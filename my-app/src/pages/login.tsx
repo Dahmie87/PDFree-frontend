@@ -33,7 +33,7 @@ const LoginPage = () => {
         transition={{ duration: 0.6 }}
         className="relative z-10 w-full max-w-md"
       >
-        <div className="glass rounded-3xl p-8 shadow-lg">
+        <div className="rounded-3xl p-8 border border-slate-200 bg-white shadow-md">
           {/* Header */}
           <div className="text-center mb-8">
             <Link to="/" className="inline-flex items-center gap-2 group mb-6">
@@ -63,7 +63,7 @@ const LoginPage = () => {
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="you@example.com"
-                  className="w-full pl-12 pr-4 py-3 rounded-xl glass-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                 />
               </div>
             </div>
@@ -79,7 +79,7 @@ const LoginPage = () => {
                   value={formData.password}
                   onChange={handleInputChange}
                   placeholder="••••••••"
-                  className="w-full pl-12 pr-12 py-3 rounded-xl glass-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                  className="w-full pl-12 pr-12 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                 />
                 <button
                   type="button"
@@ -103,7 +103,7 @@ const LoginPage = () => {
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     placeholder="••••••••"
-                    className="w-full pl-12 pr-12 py-3 rounded-xl glass-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                    className="w-full pl-12 pr-12 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                   />
                 </div>
               </div>

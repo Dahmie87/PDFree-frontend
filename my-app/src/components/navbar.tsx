@@ -21,10 +21,8 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-      scrolled ? 'glass py-3' : 'bg-transparent py-5'
-    }`}>
-      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+    <nav className="w-full border-b border-slate-200 bg-white">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         <Link to="/" className="flex items-center gap-2 group cursor-pointer">
           <div className="bg-purple-600 p-1.5 rounded-lg group-hover:rotate-12 transition-transform">
             <FileText className="text-white w-6 h-6" />
@@ -59,7 +57,7 @@ const Navbar = () => {
           </Link>
           <Link
             to="/generate"
-            className="px-5 py-2.5 glass bg-gradient-to-r from-purple-600/20 to-pink-600/20 text-purple-700 text-sm font-semibold rounded-full hover:from-purple-600/30 hover:to-pink-600/30 transition-all active:scale-95 shadow-lg shadow-purple-200/20"
+            className="px-5 py-2.5 bg-purple-600 text-white text-sm font-semibold rounded-full hover:bg-purple-700 transition-all active:scale-95 shadow-md shadow-purple-600/20"
           >
             Start Free
           </Link>

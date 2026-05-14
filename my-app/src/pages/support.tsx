@@ -92,7 +92,7 @@ const SupportPage = () => {
               <motion.div
                 key={idx}
                 whileHover={{ y: -5 }}
-                className="glass rounded-2xl p-8 text-center hover:shadow-lg transition-all group"
+                className="rounded-2xl p-8 text-center hover:shadow-lg transition-all group border border-slate-200 bg-white"
               >
                 <div className="bg-purple-100 p-4 rounded-xl w-fit mx-auto mb-4">
                   <Icon className="w-6 h-6 text-purple-600" />
@@ -128,7 +128,7 @@ const SupportPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: idx * 0.05 }}
                 viewport={{ once: true }}
-                className="glass rounded-2xl overflow-hidden hover:shadow-md transition-all"
+                className="rounded-2xl overflow-hidden hover:shadow-md transition-all border border-slate-200 bg-white"
               >
                 <button
                   onClick={() => setOpenFAQ(openFAQ === idx ? null : idx)}
@@ -167,7 +167,7 @@ const SupportPage = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="glass rounded-3xl p-12 shadow-lg"
+          className="rounded-3xl p-12 border border-slate-200 bg-white shadow-md"
         >
           <h2 className="text-3xl font-bold text-slate-900 mb-2">Send Us Feedback</h2>
           <p className="text-slate-600 mb-8">
@@ -180,7 +180,7 @@ const SupportPage = () => {
               <input
                 type="email"
                 placeholder="your@email.com"
-                className="w-full rounded-xl glass-sm px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
               />
             </div>
 
@@ -189,7 +189,7 @@ const SupportPage = () => {
               <input
                 type="text"
                 placeholder="What's your question or suggestion?"
-                className="w-full rounded-xl glass-sm px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
               />
             </div>
 
@@ -198,7 +198,7 @@ const SupportPage = () => {
               <textarea
                 rows={6}
                 placeholder="Tell us what's on your mind..."
-                className="w-full rounded-xl glass-sm px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
               />
             </div>
 
@@ -217,7 +217,7 @@ const SupportPage = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
           viewport={{ once: true }}
-          className="mt-20 glass rounded-2xl p-6"
+          className="mt-20 rounded-2xl p-6 border border-slate-200 bg-white"
         >
           <div className="flex items-start gap-3">
             <div className="shrink-0 mt-1">

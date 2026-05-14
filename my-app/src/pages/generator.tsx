@@ -1,6 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, Loader, CheckCircle2, AlertCircle, Trash2, History, Settings } from 'lucide-react';
+import { Download, Loader, CheckCircle2, AlertCircle, Trash2, History, Settings, Zap, Scale, BookOpen, Microscope, Cog, Sparkles } from 'lucide-react';
 import PatternBackdrop from '../components/pattern-backdrop';
 
 interface GeneratedBook {
@@ -179,7 +179,7 @@ const GeneratorPage = () => {
             transition={{ duration: 0.6 }}
             className="lg:col-span-2"
           >
-            <form onSubmit={handleGenerateBook} className="glass rounded-3xl p-8 shadow-lg">
+            <form onSubmit={handleGenerateBook} className="rounded-3xl p-8 border border-slate-200 bg-white shadow-md">
               <h2 className="text-2xl font-bold text-slate-900 mb-6">Book Details</h2>
 
               <div className="mb-6">
@@ -236,7 +236,7 @@ const GeneratorPage = () => {
                   onChange={(e) => setPrompt(e.target.value)}
                   rows={7}
                   placeholder="Describe your book. Example: Write a comprehensive guide to Python for beginners..."
-                  className="w-full rounded-2xl glass-sm px-5 py-4 text-base text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-base text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                 />
                 <p className="text-xs text-slate-500 mt-2">Minimum 5 characters • Max 5000 characters</p>
               </div>
@@ -267,7 +267,7 @@ const GeneratorPage = () => {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-6 glass-sm rounded-2xl p-6 border border-purple-200"
+                  className="mb-6 rounded-2xl p-6 border border-slate-200 bg-white"
                 >
                   <div className="flex items-center gap-3 mb-4">
                     <Loader className="w-5 h-5 text-blue-600 animate-spin" />
@@ -312,7 +312,7 @@ const GeneratorPage = () => {
             transition={{ duration: 0.6 }}
             className="lg:col-span-1"
           >
-            <div className="glass rounded-3xl p-6 sticky top-32 shadow-lg">
+            <div className="rounded-3xl p-6 sticky top-32 border border-slate-200 bg-white shadow-md">
               <div className="flex items-center gap-2 mb-6">
                 <History className="w-5 h-5 text-purple-600" />
                 <h3 className="text-xl font-bold text-slate-900">Generation History</h3>
@@ -336,7 +336,7 @@ const GeneratorPage = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="glass-sm rounded-xl p-4 group hover:shadow-md transition-all border border-purple-100/50 hover:border-purple-200"
+                        className=\"rounded-xl p-4 group hover:shadow-md transition-all border border-slate-200 bg-white hover:border-slate-300\"
                       >
                         <p className="text-xs font-bold text-slate-700 truncate mb-2">{book.filename}</p>
                         <p className="text-xs text-slate-600 mb-3 line-clamp-2">{book.prompt}</p>

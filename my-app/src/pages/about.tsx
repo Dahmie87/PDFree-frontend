@@ -29,7 +29,7 @@ const AboutPage = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="mb-20 glass rounded-3xl p-12 shadow-lg"
+          className="mb-20 rounded-3xl p-12 border border-slate-200 bg-white shadow-md"
         >
           <h2 className="text-3xl font-bold text-slate-900 mb-6">Our Mission</h2>
           <p className="text-lg text-slate-700 leading-relaxed">
@@ -77,7 +77,7 @@ const AboutPage = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: idx * 0.15 }}
                   viewport={{ once: true }}
-                  className="glass rounded-2xl p-8 hover:shadow-lg transition-all"
+                  className="rounded-2xl p-8 border border-slate-200 bg-white hover:shadow-lg transition-all"
                 >
                   <div className="bg-purple-100 p-3 rounded-xl w-fit mb-4">
                     <Icon className="w-6 h-6 text-purple-600" />
