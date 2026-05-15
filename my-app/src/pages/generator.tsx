@@ -121,7 +121,7 @@ const GeneratorPage = () => {
           currentStep = 0;
           setThinkingSteps(initialSteps);
         }
-      }, 2000);
+      }, 4000);
 
       // --- ENDLESS LOOP TEST (Reversible): Hang forever to keep UI in generating state ---
       await new Promise(() => {});
@@ -363,13 +363,6 @@ const GeneratorPage = () => {
                     placeholder="Tell me what book you'd like to create..."
                     className="flex-1 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-base text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                   />
-                  <button
-                    type="submit"
-                    disabled={isGenerating || prompt.trim().length < 5}
-                    className="self-end py-4 px-4 bg-purple-600 text-white font-bold rounded-2xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md shadow-purple-600/30"
-                  >
-                    <Send className="w-5 h-5" />
-                  </button>
                 </div>
                 <p className="text-xs text-slate-500 mt-2">Minimum 5 characters • Max 5000 characters</p>
               </div>
@@ -410,7 +403,7 @@ const GeneratorPage = () => {
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <Brain className="w-5 h-5 text-blue-600" />
-                    <h3 className="font-bold text-slate-900">Agent Status</h3>
+                    <h3 className="font-semibold text-slate-900">Agent Status</h3>
                   </div>
                   <div className="min-h-[2rem] flex items-center">
                     <AnimatePresence mode="wait">
@@ -425,7 +418,7 @@ const GeneratorPage = () => {
                             className="flex items-center gap-3"
                           >
                             <Loader className="w-5 h-5 text-blue-600 animate-spin" />
-                            <span className="text-sm text-blue-700 font-semibold">
+                            <span className="text-sm text-blue-700 font-medium">
                               {step.action}...
                             </span>
                           </motion.div>
@@ -442,7 +435,7 @@ const GeneratorPage = () => {
                   className="mb-6 rounded-2xl p-6 border border-blue-200 bg-blue-50"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <h3 className="font-bold text-slate-900">Generating Your Book</h3>
+                    <h3 className="font-semibold text-slate-900">Generating Your Book</h3>
                   </div>
                   <div className="w-full bg-blue-200 rounded-full h-2 border border-blue-300">
                     <motion.div
