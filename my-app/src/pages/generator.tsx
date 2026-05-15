@@ -43,10 +43,16 @@ const GeneratorPage = () => {
 
   // Error modal state
   const [showErrorModal, setShowErrorModal] = useState(false);
+  // PDF filename/title customization
+  const [filenameInput, setFilenameInput] = useState('');
+  const [useFilenameAsTitle, setUseFilenameAsTitle] = useState(true);
 
   // Result modal state
   const [showResultModal, setShowResultModal] = useState(false);
-  const [resultData, setResultData] = useState<{ filename: string; objectUrl: string; success: boolean; message: string } | null>(null);
+  const [resultData, setResultData] = useState<{ filename: string; objectUrl: string; success: boolean; message: string; title?: string } | null>(null);
+
+  // Custom PDF metadata (single optional filename + checkbox to use as title)
+  // `filenameInput` and `useFilenameAsTitle` declared above
 
   // Customization options
   const [model, setModel] = useState('gpt-4');
@@ -71,6 +77,11 @@ const GeneratorPage = () => {
     if (!contentDisposition) return 'book.pdf';
     const match = contentDisposition.match(/filename\*?=(?:UTF-8''|")?([^";]+)/i);
     return match?.[1]?.replace(/"/g, '') || 'book.pdf';
+  };
+
+  const ensurePdfExtension = (name: string) => {
+    if (!name) return name;
+    return name.toLowerCase().endsWith('.pdf') ? name : `${name}.pdf`;
   };
 
   const handleGenerateBook = async (event: FormEvent<HTMLFormElement>) => {
@@ -160,12 +171,14 @@ const GeneratorPage = () => {
       const pdfBlob = await response.blob();
       const objectUrl = window.URL.createObjectURL(pdfBlob);
       const filename = getFilenameFromDisposition(response.headers.get('content-disposition'));
+      const finalFilename = filenameInput.trim() ? ensurePdfExtension(filenameInput.trim()) : filename;
+      const finalTitle = useFilenameAsTitle && filenameInput.trim() ? filenameInput.trim().replace(/\.pdf$/i, '') : '';
 
       // Add agent message to chat
       const agentMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'agent',
-        content: `✓ Generated "${filename}" successfully!\n\nYour book has been created with ${mode} writing style using the ${theme} theme.`,
+        content: `✓ Generated "${finalFilename}" successfully!\n\nYour book has been created with ${mode} writing style using the ${theme} theme.`,
         timestamp: Date.now(),
       };
       setMessages((prev) => [...prev, agentMessage]);
@@ -174,7 +187,7 @@ const GeneratorPage = () => {
       const newBook: GeneratedBook = {
         id: Date.now().toString(),
         prompt: trimmedPrompt,
-        filename,
+        filename: finalFilename,
         timestamp: Date.now(),
       };
 
@@ -184,10 +197,11 @@ const GeneratorPage = () => {
 
       // Show result modal with preview
       setResultData({
-        filename,
+        filename: finalFilename,
         objectUrl,
         success: true,
         message: `Your book has been created with ${mode} writing style using the ${theme} theme.`,
+        title: finalTitle,
       });
       setShowResultModal(true);
 
@@ -226,7 +240,7 @@ const GeneratorPage = () => {
         >
           <h1 className="text-5xl font-bold text-slate-900 mb-4">Generate Your Book</h1>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            Turn your ideas into a beautiful, professionally formatted PDF book in minutes.
+            Turn your ideas into a beautiful, professionally formatted PDF book in seconds.
           </p>
         </motion.div>
 
@@ -295,6 +309,26 @@ const GeneratorPage = () => {
                       <option value="creative" className="bg-white">Creative (Storytelling)</option>
                     </select>
                   </div>
+                </div>
+
+                {/* Filename (optional) and checkbox to use as title */}
+                <div className="mb-4">
+                  <label className="block text-xs font-bold text-slate-600 mb-2">Filename (optional)</label>
+                  <input
+                    value={filenameInput}
+                    onChange={(e) => setFilenameInput(e.target.value)}
+                    placeholder="my-book.pdf"
+                    className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                  />
+                  <label className="inline-flex items-center gap-2 mt-3 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={useFilenameAsTitle}
+                      onChange={(e) => setUseFilenameAsTitle(e.target.checked)}
+                      className="w-4 h-4 rounded border-slate-300"
+                    />
+                    <span className="text-slate-700">Use filename as PDF title</span>
+                  </label>
                 </div>
 
                 {/* Advanced Options Toggle */}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MessageCircle, Mail, Book, AlertCircle, ChevronDown } from 'lucide-react';
+import { MessageCircle, Mail, Book, ChevronDown } from 'lucide-react';
 import PatternBackdrop from '../components/pattern-backdrop';
 
 const SupportPage = () => {

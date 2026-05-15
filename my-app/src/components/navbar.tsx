@@ -9,6 +9,7 @@ const Navbar = () => {
 
   window.addEventListener('scroll', () => {
     setScrolled(window.scrollY > 20);
+    console.log(scrolled)
   });
 
   const isActive = (path: string) => location.pathname === path;
@@ -16,6 +17,7 @@ const Navbar = () => {
   const navLinks = [
     { path: '/', label: 'Home' },
     { path: '/generate', label: 'Generate' },
+    { path: '/api-docs', label: 'API Docs' },
     { path: '/about', label: 'About' },
     { path: '/support', label: 'Support' },
   ];
