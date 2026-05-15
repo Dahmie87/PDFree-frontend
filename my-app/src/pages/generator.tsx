@@ -242,6 +242,24 @@ const GeneratorPage = () => {
               <div className="mb-6">
                 <label className="block text-sm font-bold text-slate-700 mb-3">Customization</label>
                 <div className="grid grid-cols-2 gap-4 mb-6 md:grid-cols-1 lg:grid-cols-3">
+                  {/* Priority Selection */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
+                      <Scale className="w-3 h-3" />
+                      Priority
+                    </label>
+                    <select
+                      value={speedLength}
+                      onChange={(e) => setSpeedLength(e.target.value)}
+                      className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                    >
+                      <option value="super fast" className="bg-white">Super Fast</option>
+                      <option value="fast" className="bg-white">Fast</option>
+                      <option value="balanced" className="bg-white">Balanced</option>
+                      <option value="length" className="bg-white">Length (Detail)</option>
+                    </select>
+                  </div>
+
                   {/* Model Selection */}
                   <div>
                     <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
@@ -281,9 +299,9 @@ const GeneratorPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowAdvanced(!showAdvanced)}
-                  className="text-sm font-semibold text-purple-600 hover:text-purple-700 transition flex items-center gap-1 mb-4"
+                  className="text-sm font-semibold text-purple-600 hover:text-purple-700 transition flex items-center gap-2 mb-4"
                 >
-                  {showAdvanced ? '▼ Hide' : '▶ Show'} Advanced Options
+                  {showAdvanced ? 'Hide' : 'Show'} More Options
                 </button>
 
                 {/* Advanced Customization */}
@@ -296,24 +314,6 @@ const GeneratorPage = () => {
                       transition={{ duration: 0.3 }}
                       className="grid grid-cols-2 gap-4 md:grid-cols-1 lg:grid-cols-3"
                     >
-                      {/* Speed vs Length */}
-                      <div>
-                        <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
-                          <Scale className="w-3 h-3" />
-                          Priority
-                        </label>
-                        <select
-                          value={speedLength}
-                          onChange={(e) => setSpeedLength(e.target.value)}
-                          className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
-                        >
-                          <option value="super fast" className="bg-white">Super Fast</option>
-                          <option value="fast" className="bg-white">Fast</option>
-                          <option value="balanced" className="bg-white">Balanced</option>
-                          <option value="length" className="bg-white">Length (Detail)</option>
-                        </select>
-                      </div>
-
                       {/* Connect Your Model */}
                       <div>
                         <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
