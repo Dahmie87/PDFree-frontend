@@ -1,6 +1,7 @@
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect } from 'react';
+import type { FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, Loader, CheckCircle2, AlertCircle, Trash2, History, Settings, Zap, Scale, BookOpen, Microscope, Cog, Sparkles, Send, Brain, Lightbulb, Palette } from 'lucide-react';
+import { Download, Loader, CheckCircle2, AlertCircle, Trash2, History, Settings, Scale, BookOpen, Cog, Sparkles, Brain, Palette } from 'lucide-react';
 import PatternBackdrop from '../components/pattern-backdrop';
 
 interface GeneratedBook {
@@ -33,7 +34,6 @@ const GeneratorPage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [generatedBooks, setGeneratedBooks] = useState<GeneratedBook[]>([]);
-  const [showCustomization, setShowCustomization] = useState(false);
   const [generationStage, setGenerationStage] = useState('');
   
   // Chat and thinking process
@@ -41,15 +41,19 @@ const GeneratorPage = () => {
   const [thinkingSteps, setThinkingSteps] = useState<ThinkingStep[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
+  // Error modal state
+  const [showErrorModal, setShowErrorModal] = useState(false);
+
+  // Result modal state
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [resultData, setResultData] = useState<{ filename: string; objectUrl: string; success: boolean; message: string } | null>(null);
+
   // Customization options
   const [model, setModel] = useState('gpt-4');
   const [speedLength, setSpeedLength] = useState('balanced');
   const [mode, setMode] = useState('creative');
   const [theme, setTheme] = useState('professional');
   const [connectModel, setConnectModel] = useState('default');
-  const [pageLength, setPageLength] = useState(20);
-  const [temperature, setTemperature] = useState(0.7);
-  const [numPages, setNumPages] = useState(20);
 
   useEffect(() => {
     const stored = localStorage.getItem('generatedBooks');
@@ -75,6 +79,7 @@ const GeneratorPage = () => {
     const trimmedPrompt = prompt.trim();
     if (trimmedPrompt.length < 5) {
       setError('Prompt must be at least 5 characters long.');
+      setShowErrorModal(true);
       return;
     }
 
@@ -117,14 +122,9 @@ const GeneratorPage = () => {
             })
           );
         } else {
-          // --- ENDLESS LOOP TEST (Reversible) ---
-          currentStep = 0;
-          setThinkingSteps(initialSteps);
+          clearInterval(stepInterval);
         }
-      }, 4000);
-
-      // --- ENDLESS LOOP TEST (Reversible): Hang forever to keep UI in generating state ---
-      await new Promise(() => {});
+      }, 2000);
 
       const response = await fetch(`${API_BASE}/generate-book`, {
         method: 'POST',
@@ -182,19 +182,21 @@ const GeneratorPage = () => {
       setGeneratedBooks(updatedBooks);
       localStorage.setItem('generatedBooks', JSON.stringify(updatedBooks));
 
-      // Auto download
-      const downloadLink = document.createElement('a');
-      downloadLink.href = objectUrl;
-      downloadLink.download = filename;
-      downloadLink.click();
-      window.URL.revokeObjectURL(objectUrl);
+      // Show result modal with preview
+      setResultData({
+        filename,
+        objectUrl,
+        success: true,
+        message: `Your book has been created with ${mode} writing style using the ${theme} theme.`,
+      });
+      setShowResultModal(true);
 
-      setSuccess(`Your PDF "${filename}" is ready!`);
       setGenerationStage('');
       setPrompt('Write a comprehensive guide to machine learning');
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Generation failed.');
       setGenerationStage('');
+      setShowErrorModal(true);
     } finally {
       setIsGenerating(false);
     }
@@ -244,7 +246,7 @@ const GeneratorPage = () => {
                 <div className="grid grid-cols-2 gap-4 mb-6 md:grid-cols-1 lg:grid-cols-3">
                   {/* Priority Selection */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
+                    <label className="text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
                       <Scale className="w-3 h-3" />
                       Priority
                     </label>
@@ -262,7 +264,7 @@ const GeneratorPage = () => {
 
                   {/* Model Selection */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
+                    <label className="text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
                       <Settings className="w-3 h-3" />
                       Model
                     </label>
@@ -279,7 +281,7 @@ const GeneratorPage = () => {
 
                   {/* Writing Mode */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
+                    <label className="text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
                       <Sparkles className="w-3 h-3" />
                       Writing Mode
                     </label>
@@ -316,7 +318,7 @@ const GeneratorPage = () => {
                     >
                       {/* Connect Your Model */}
                       <div>
-                        <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
+                        <label className="text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
                           <Cog className="w-3 h-3" />
                           Connect Your Model
                         </label>
@@ -333,7 +335,7 @@ const GeneratorPage = () => {
 
                       {/* Theme or Style */}
                       <div>
-                        <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
+                        <label className="text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
                           <Palette className="w-3 h-3" />
                           Theme or Style
                         </label>
@@ -405,7 +407,7 @@ const GeneratorPage = () => {
                     <Brain className="w-5 h-5 text-blue-600" />
                     <h3 className="font-semibold text-slate-900">Agent Status</h3>
                   </div>
-                  <div className="min-h-[2rem] flex items-center">
+                  <div className="min-h-8 flex items-center">
                     <AnimatePresence mode="wait">
                       {thinkingSteps
                         .filter((step) => step.status === 'in-progress')
@@ -437,6 +439,11 @@ const GeneratorPage = () => {
                   <div className="flex items-center gap-3 mb-4">
                     <h3 className="font-semibold text-slate-900">Generating Your Book</h3>
                   </div>
+                  {generationStage && (
+                    <p className="text-xs font-medium uppercase tracking-wide text-blue-700 mb-3">
+                      {generationStage}
+                    </p>
+                  )}
                   <div className="w-full bg-blue-200 rounded-full h-2 border border-blue-300">
                     <motion.div
                       initial={{ width: '0%' }}
@@ -446,17 +453,6 @@ const GeneratorPage = () => {
                     />
                   </div>
                   <p className="text-xs text-slate-600 mt-2">Processing your request...</p>
-                </motion.div>
-              )}
-
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4"
-                >
-                  <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 shrink-0" />
-                  <p className="text-sm text-red-700">{error}</p>
                 </motion.div>
               )}
 
@@ -553,9 +549,136 @@ const GeneratorPage = () => {
             </div>
           </motion.div>
         </div>
+
+        {/* Result Modal */}
+        <AnimatePresence>
+          {showErrorModal && error && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowErrorModal(false)}
+                className="fixed inset-0 bg-black/50 z-40"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.92, y: 18 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.92, y: 18 }}
+                className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl z-50 max-w-lg w-full mx-4"
+              >
+                <div className="p-8">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                      <AlertCircle className="w-6 h-6 text-red-600" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-slate-900">Generation Failed</h2>
+                      <p className="text-sm text-slate-600 mt-1">Please review the backend response</p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-red-200 bg-red-50 p-4 mb-6">
+                    <p className="text-sm text-red-800 whitespace-pre-wrap">{error}</p>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setShowErrorModal(false)}
+                      className="flex-1 py-3 px-6 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-all"
+                    >
+                      Dismiss
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowErrorModal(false);
+                        setError('');
+                      }}
+                      className="py-3 px-6 border border-slate-300 text-slate-900 font-bold rounded-xl hover:bg-slate-50 transition-all"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+
+          {showResultModal && resultData && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowResultModal(false)}
+                className="fixed inset-0 bg-black/50 z-40"
+              />
+              
+              {/* Modal */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl z-50 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+              >
+                <div className="p-8">
+                  {/* Success Header */}
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                      <CheckCircle2 className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-slate-900">Book Generated Successfully!</h2>
+                      <p className="text-sm text-slate-600 mt-1">{resultData.filename}</p>
+                    </div>
+                  </div>
+
+                  {/* Message */}
+                  <p className="text-slate-700 mb-6">{resultData.message}</p>
+
+                  {/* Preview Section */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4">Preview</h3>
+                    <div className="bg-slate-100 rounded-xl p-8 border-2 border-dashed border-slate-300 flex items-center justify-center h-96">
+                      <div className="text-center">
+                        <BookOpen className="w-16 h-16 text-slate-400 mx-auto mb-3" />
+                        <p className="text-slate-600 font-medium">PDF Preview</p>
+                        <p className="text-sm text-slate-500 mt-1">Your book is ready to download</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = resultData.objectUrl;
+                        downloadLink.download = resultData.filename;
+                        downloadLink.click();
+                      }}
+                      className="flex-1 py-3 px-6 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30"
+                    >
+                      <Download className="w-5 h-5" />
+                      Download PDF
+                    </button>
+                    <button
+                      onClick={() => setShowResultModal(false)}
+                      className="py-3 px-6 border border-slate-300 text-slate-900 font-bold rounded-xl hover:bg-slate-50 transition-all"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
 };
+
 
 export default GeneratorPage;
