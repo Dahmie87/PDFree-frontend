@@ -39,6 +39,7 @@ const GeneratorPage = () => {
   // Chat and thinking process
   const [messages, setMessages] = useState<Message[]>([]);
   const [thinkingSteps, setThinkingSteps] = useState<ThinkingStep[]>([]);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Customization options
   const [model, setModel] = useState('gpt-4');
@@ -92,45 +93,45 @@ const GeneratorPage = () => {
     setMessages((prev) => [...prev, userMessage]);
     
     // Add thinking steps
-    const steps: ThinkingStep[] = [
-      { id: '1', action: 'Analyzing your request and context', status: 'pending' },
+    const initialSteps: ThinkingStep[] = [
+      { id: '1', action: 'Analyzing your request and context', status: 'in-progress' },
       { id: '2', action: 'Structuring book outline', status: 'pending' },
       { id: '3', action: 'Generating table of contents', status: 'pending' },
       { id: '4', action: 'Writing chapters and content', status: 'pending' },
       { id: '5', action: 'Applying theme and styling', status: 'pending' },
       { id: '6', action: 'Compiling PDF', status: 'pending' },
     ];
-    setThinkingSteps(steps);
+    setThinkingSteps(initialSteps);
 
     try {
       // Simulate step progression
       let currentStep = 0;
       const stepInterval = setInterval(() => {
-        if (currentStep < steps.length) {
-          setThinkingSteps((prev) => {
-            const updated = [...prev];
-            if (currentStep > 0) {
-              updated[currentStep - 1].status = 'completed';
-            }
-            if (currentStep < steps.length) {
-              updated[currentStep].status = 'in-progress';
-            }
-            return updated;
-          });
+        if (currentStep < initialSteps.length - 1) {
           currentStep++;
+          setThinkingSteps((prev) =>
+            prev.map((step, idx) => {
+              if (idx === currentStep) return { ...step, status: 'in-progress' };
+              if (idx < currentStep) return { ...step, status: 'completed' };
+              return step;
+            })
+          );
+        } else {
+          // --- ENDLESS LOOP TEST (Reversible) ---
+          currentStep = 0;
+          setThinkingSteps(initialSteps);
         }
       }, 2000);
+
+      // --- ENDLESS LOOP TEST (Reversible): Hang forever to keep UI in generating state ---
+      await new Promise(() => {});
 
       const response = await fetch(`${API_BASE}/generate-book`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: trimmedPrompt,
-          page_length: pageLength,
-          temperature: temperature,
-          num_pages: numPages,
-          theme: theme,
-          mode: mode,
+          length_priority: speedLength,
         }),
       });
 
@@ -258,23 +259,6 @@ const GeneratorPage = () => {
                     </select>
                   </div>
 
-                  {/* Speed vs Length */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
-                      <Scale className="w-3 h-3" />
-                      Priority
-                    </label>
-                    <select
-                      value={speedLength}
-                      onChange={(e) => setSpeedLength(e.target.value)}
-                      className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
-                    >
-                      <option value="speed" className="bg-white">Speed (Faster Generation)</option>
-                      <option value="balanced" className="bg-white">Balanced</option>
-                      <option value="length" className="bg-white">Length (More Detail)</option>
-                    </select>
-                  </div>
-
                   {/* Writing Mode */}
                   <div>
                     <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
@@ -291,42 +275,82 @@ const GeneratorPage = () => {
                       <option value="creative" className="bg-white">Creative (Storytelling)</option>
                     </select>
                   </div>
-
-                  {/* Connect Your Model */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
-                      <Cog className="w-3 h-3" />
-                      Connect Your Model
-                    </label>
-                    <select
-                      value={connectModel}
-                      onChange={(e) => setConnectModel(e.target.value)}
-                      className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
-                    >
-                      <option value="default">Default (PDFree)</option>
-                      <option value="custom-api">Custom API Key</option>
-                      <option value="enterprise">Enterprise</option>
-                    </select>
-                  </div>
-
-                  {/* Theme or Style */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
-                      <Palette className="w-3 h-3" />
-                      Theme or Style
-                    </label>
-                    <select
-                      value={theme}
-                      onChange={(e) => setTheme(e.target.value)}
-                      className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
-                    >
-                      <option value="professional">Professional</option>
-                      <option value="minimal">Minimal</option>
-                      <option value="colorful">Colorful</option>
-                      <option value="academic">Academic</option>
-                    </select>
-                  </div>
                 </div>
+
+                {/* Advanced Options Toggle */}
+                <button
+                  type="button"
+                  onClick={() => setShowAdvanced(!showAdvanced)}
+                  className="text-sm font-semibold text-purple-600 hover:text-purple-700 transition flex items-center gap-1 mb-4"
+                >
+                  {showAdvanced ? '▼ Hide' : '▶ Show'} Advanced Options
+                </button>
+
+                {/* Advanced Customization */}
+                <AnimatePresence>
+                  {showAdvanced && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="grid grid-cols-2 gap-4 md:grid-cols-1 lg:grid-cols-3"
+                    >
+                      {/* Speed vs Length */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
+                          <Scale className="w-3 h-3" />
+                          Priority
+                        </label>
+                        <select
+                          value={speedLength}
+                          onChange={(e) => setSpeedLength(e.target.value)}
+                          className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                        >
+                          <option value="super fast" className="bg-white">Super Fast</option>
+                          <option value="fast" className="bg-white">Fast</option>
+                          <option value="balanced" className="bg-white">Balanced</option>
+                          <option value="length" className="bg-white">Length (Detail)</option>
+                        </select>
+                      </div>
+
+                      {/* Connect Your Model */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
+                          <Cog className="w-3 h-3" />
+                          Connect Your Model
+                        </label>
+                        <select
+                          value={connectModel}
+                          onChange={(e) => setConnectModel(e.target.value)}
+                          className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                        >
+                          <option value="default">Default (PDFree)</option>
+                          <option value="custom-api">Custom API Key</option>
+                          <option value="enterprise">Enterprise</option>
+                        </select>
+                      </div>
+
+                      {/* Theme or Style */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
+                          <Palette className="w-3 h-3" />
+                          Theme or Style
+                        </label>
+                        <select
+                          value={theme}
+                          onChange={(e) => setTheme(e.target.value)}
+                          className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                        >
+                          <option value="professional">Professional</option>
+                          <option value="minimal">Minimal</option>
+                          <option value="colorful">Colorful</option>
+                          <option value="academic">Academic</option>
+                        </select>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               <div className="mb-6">
@@ -384,42 +408,28 @@ const GeneratorPage = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className="mb-6 rounded-2xl p-6 border border-slate-200 bg-blue-50"
                 >
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-2">
                     <Brain className="w-5 h-5 text-blue-600" />
-                    <h3 className="font-bold text-slate-900">Agent Thinking Process</h3>
+                    <h3 className="font-bold text-slate-900">Agent Status</h3>
                   </div>
-                  <div className="space-y-2">
-                    <AnimatePresence>
-                      {thinkingSteps.map((step, idx) => (
-                        <motion.div
-                          key={step.id}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: 10 }}
-                          className="flex items-start gap-3"
-                        >
-                          {step.status === 'completed' && (
-                            <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
-                          )}
-                          {step.status === 'in-progress' && (
-                            <Loader className="w-5 h-5 text-blue-600 shrink-0 mt-0.5 animate-spin" />
-                          )}
-                          {step.status === 'pending' && (
-                            <div className="w-5 h-5 rounded-full border-2 border-slate-300 shrink-0 mt-0.5" />
-                          )}
-                          <span
-                            className={`text-sm pt-0.5 ${
-                              step.status === 'completed'
-                                ? 'text-slate-600 line-through'
-                                : step.status === 'in-progress'
-                                ? 'text-blue-700 font-semibold'
-                                : 'text-slate-600'
-                            }`}
+                  <div className="min-h-[2rem] flex items-center">
+                    <AnimatePresence mode="wait">
+                      {thinkingSteps
+                        .filter((step) => step.status === 'in-progress')
+                        .map((step) => (
+                          <motion.div
+                            key={step.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="flex items-center gap-3"
                           >
-                            {step.action}
-                          </span>
-                        </motion.div>
-                      ))}
+                            <Loader className="w-5 h-5 text-blue-600 animate-spin" />
+                            <span className="text-sm text-blue-700 font-semibold">
+                              {step.action}...
+                            </span>
+                          </motion.div>
+                        ))}
                     </AnimatePresence>
                   </div>
                 </motion.div>
@@ -432,7 +442,6 @@ const GeneratorPage = () => {
                   className="mb-6 rounded-2xl p-6 border border-blue-200 bg-blue-50"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <Loader className="w-5 h-5 text-blue-600 animate-spin" />
                     <h3 className="font-bold text-slate-900">Generating Your Book</h3>
                   </div>
                   <div className="w-full bg-blue-200 rounded-full h-2 border border-blue-300">
@@ -469,28 +478,6 @@ const GeneratorPage = () => {
                 </motion.div>
               )}
 
-              {isGenerating && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-6 rounded-2xl p-6 border border-blue-200 bg-blue-50"
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <Loader className="w-5 h-5 text-blue-600 animate-spin" />
-                    <h3 className="font-bold text-slate-900">Generating Your Book</h3>
-                  </div>
-                  <div className="w-full bg-blue-200 rounded-full h-2 border border-blue-300">
-                    <motion.div
-                      initial={{ width: '0%' }}
-                      animate={{ width: '85%' }}
-                      transition={{ duration: 8 }}
-                      className="bg-blue-600 h-2 rounded-full"
-                    />
-                  </div>
-                  <p className="text-xs text-slate-600 mt-2">Processing your request...</p>
-                </motion.div>
-              )}
-
               <button
                 type="submit"
                 disabled={isGenerating}
@@ -498,7 +485,6 @@ const GeneratorPage = () => {
               >
                 {isGenerating ? (
                   <>
-                    <Loader className="w-5 h-5 animate-spin" />
                     Generating...
                   </>
                 ) : (
