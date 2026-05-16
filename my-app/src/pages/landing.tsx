@@ -90,7 +90,7 @@ const Landing = () => {
               rel="noreferrer"
               className="w-full sm:w-auto px-8 py-4 glass text-slate-700 font-bold rounded-2xl hover:glass transition-all inline-flex items-center justify-center"
             >
-              View API Docs
+              View Documentation
             </a>
           </motion.div>
 

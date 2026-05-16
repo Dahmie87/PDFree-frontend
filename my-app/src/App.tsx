@@ -7,6 +7,7 @@ import GeneratorPage from './pages/generator'
 import LoginPage from './pages/login'
 import AboutPage from './pages/about'
 import SupportPage from './pages/support'
+import ApiDocs from './pages/api-docs'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/api-docs" element={<ApiDocs />} />
           <Route path="/generate" element={<GeneratorPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/about" element={<AboutPage />} />
