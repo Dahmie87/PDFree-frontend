@@ -26,7 +26,7 @@ interface ThinkingStep {
   duration?: number;
 }
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_PDFREE_API_BASE_URL ?? 'http://localhost:8000';
 
 const GeneratorPage = () => {
   const [prompt, setPrompt] = useState('Write a comprehensive guide to machine learning');
