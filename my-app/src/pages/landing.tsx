@@ -4,6 +4,8 @@ import { ArrowRight, Zap, CheckCircle2, Sparkles, BookOpen, Lightbulb, Layers } 
 import { Link } from 'react-router-dom';
 import PatternBackdrop from '../components/pattern-backdrop';
 
+const API_BASE = import.meta.env.VITE_PDFREE_API_BASE_URL ?? 'http://localhost:8000';
+
 const TypingText = ({ text, delay = 0 }: { text: string; delay?: number }) => {
   const [displayText, setDisplayText] = useState('');
   const [isTyping, setIsTyping] = useState(true);
@@ -33,6 +35,22 @@ const TypingText = ({ text, delay = 0 }: { text: string; delay?: number }) => {
 };
 
 const Landing = () => {
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const pingHealth = async () => {
+      try {
+        await fetch(`${API_BASE}/health`, { signal: controller.signal });
+      } catch {
+        // Ignore health check failures on the public landing page.
+      }
+    };
+
+    pingHealth();
+
+    return () => controller.abort();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white text-slate-900">
       {/* Hero Section */}
