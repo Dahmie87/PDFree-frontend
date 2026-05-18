@@ -47,6 +47,7 @@ const GeneratorPage = () => {
     success: boolean;
     message: string;
     title?: string;
+    generationTime?: string;
   } | null>(null);
 
   // Customization options
@@ -77,6 +78,14 @@ const GeneratorPage = () => {
   const ensurePdfExtension = (name: string) => {
     if (!name) return name;
     return name.toLowerCase().endsWith('.pdf') ? name : `${name}.pdf`;
+  };
+
+  const getGenerationTimeLabel = (response: Response) => {
+    const generationTime = response.headers.get('x-generation-time');
+    if (!generationTime) return '';
+
+    const generationTimeUnit = response.headers.get('x-generation-time-unit') || 'seconds';
+    return `${generationTime} ${generationTimeUnit}`;
   };
 
   const handleGenerateBook = async (event: FormEvent<HTMLFormElement>) => {
@@ -128,6 +137,7 @@ const GeneratorPage = () => {
         useFilenameAsTitle && filenameInput.trim()
           ? filenameInput.trim().replace(/\.pdf$/i, '')
           : '';
+      const generationTime = getGenerationTimeLabel(response);
 
       const newBook: GeneratedBook = {
         id: Date.now().toString(),
@@ -146,6 +156,7 @@ const GeneratorPage = () => {
         success: true,
         message: `Your book has been created with ${mode} writing style using the ${theme} theme.`,
         title: finalTitle,
+        generationTime,
       });
       setShowResultModal(true);
 
@@ -509,6 +520,17 @@ const GeneratorPage = () => {
                   </div>
 
                   <p className="mb-5 text-sm text-stone-700 md:text-base">{resultData.message}</p>
+
+                  {resultData.generationTime && (
+                    <div className="mb-5 rounded-2xl border border-purple-200 bg-purple-50 px-4 py-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-purple-700">
+                        Generation time
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-purple-900">
+                        {resultData.generationTime}
+                      </p>
+                    </div>
+                  )}
 
                   <div className="mb-6">
                     <h3 className="mb-3 text-lg font-semibold text-stone-900">Preview</h3>
