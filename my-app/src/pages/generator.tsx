@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Download,
   Loader,
   CheckCircle2,
   AlertCircle,
@@ -528,8 +527,7 @@ const GeneratorPage = () => {
                       }}
                       className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-stone-900 px-6 py-3 font-bold text-white transition hover:bg-stone-800"
                     >
-                      <Download className="h-5 w-5" />
-                      Download PDF
+                        Download PDF
                     </button>
                     <button
                       onClick={() => setShowResultModal(false)}
