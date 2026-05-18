@@ -160,22 +160,12 @@ const AboutPage = () => {
           className="mb-20"
         >
           <h2 className="text-3xl font-bold text-slate-900 mb-12 text-center">Small Team, Big Impact</h2>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-1 gap-8">
             {[
-              {
-                name: "Alex Chen",
-                role: "Founder & CEO",
-                bio: "Former software engineer at Google. Frustrated with PDF tools, decided to build a better one.",
-              },
               {
                 name: profile.name,
                 role: profile.title,
                 bio: profile.bio,
-              },
-              {
-                name: "Jordan Kim",
-                role: "Product Designer",
-                bio: "Design lead focused on simplicity and accessibility. Makes sure PDFree doesn't suck.",
               },
             ].map((member, idx) => (
               <motion.div
