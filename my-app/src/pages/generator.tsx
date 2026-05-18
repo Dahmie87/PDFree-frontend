@@ -12,6 +12,7 @@ import {
   Cog,
   Sparkles,
   Palette,
+  Lock,
 } from 'lucide-react';
 import PatternBackdrop from '../components/pattern-backdrop';
 
@@ -51,11 +52,14 @@ const GeneratorPage = () => {
   } | null>(null);
 
   // Customization options
-  const [model, setModel] = useState('gpt-4o-mini');
+  const [model, setModel] = useState('llama-3.1-8b-instruct');
   const [speedLength, setSpeedLength] = useState('balanced');
   const [mode, setMode] = useState('creative');
   const [theme, setTheme] = useState('professional');
   const [connectModel, setConnectModel] = useState('default');
+  const [showUnauthorizedModal, setShowUnauthorizedModal] = useState(false);
+
+  const premiumModels = ['gpt-5.5', 'claude-new', 'claude-alt'];
 
   useEffect(() => {
     const stored = localStorage.getItem('generatedBooks');
@@ -246,11 +250,21 @@ const GeneratorPage = () => {
                   </label>
                   <select
                     value={model}
-                    onChange={(e) => setModel(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (premiumModels.includes(val)) {
+                        setShowUnauthorizedModal(true);
+                        return;
+                      }
+                      setModel(val);
+                    }}
                     className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-stone-800 outline-none transition focus:border-purple-600 focus:bg-white focus:ring-2 focus:ring-purple-100"
                   >
-                    <option value="gpt-4o-mini">gpt-4o-mini</option>
                     <option value="llama-3.1-8b-instruct">llama-3.1-8b-instruct</option>
+                    <option value="gpt-5.5">gpt-5.5 ★</option>
+                    <option value="claude-new">claude-new ★</option>
+                    <option value="claude-alt">claude-alt ★</option>
+                    <option value="gpt-4o-mini">gpt-4o-mini</option>
                     <option value="gemini-2.0-flash">gemini-2.0-flash</option>
                     <option value="deepseek-chat">deepseek-chat</option>
                     <option value="qwen2.5-7b-instruct">qwen2.5-7b-instruct</option>
@@ -560,6 +574,53 @@ const GeneratorPage = () => {
                       className="rounded-xl border border-stone-300 px-6 py-3 font-bold text-stone-900 transition hover:bg-stone-50"
                     >
                       Close
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+
+          {showUnauthorizedModal && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowUnauthorizedModal(false)}
+                className="fixed inset-0 z-40 bg-black/50"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 18 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 18 }}
+                className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-3xl bg-white shadow-2xl mx-4"
+              >
+                <div className="p-6">
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-50">
+                      <Lock className="h-6 w-6 text-yellow-700" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-stone-900">Sign in required</h2>
+                      <p className="mt-1 text-sm text-stone-600">This model requires authentication to use.</p>
+                    </div>
+                  </div>
+
+                  <p className="mb-6 text-sm text-stone-700">Please sign in to access this premium model. Once signed in, you'll be able to select and use it.</p>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => (window.location.href = '/login')}
+                      className="flex-1 rounded-xl bg-yellow-600 px-6 py-3 font-bold text-white transition hover:bg-yellow-700"
+                    >
+                      Sign in
+                    </button>
+                    <button
+                      onClick={() => setShowUnauthorizedModal(false)}
+                      className="rounded-xl border border-stone-300 px-6 py-3 font-bold text-stone-900 transition hover:bg-stone-50"
+                    >
+                      Cancel
                     </button>
                   </div>
                 </div>
