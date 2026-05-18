@@ -50,7 +50,7 @@ const GeneratorPage = () => {
   } | null>(null);
 
   // Customization options
-  const [model, setModel] = useState('gpt-4');
+  const [model, setModel] = useState('gpt-4o-mini');
   const [speedLength, setSpeedLength] = useState('balanced');
   const [mode, setMode] = useState('creative');
   const [theme, setTheme] = useState('professional');
@@ -238,9 +238,12 @@ const GeneratorPage = () => {
                     onChange={(e) => setModel(e.target.value)}
                     className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-stone-800 outline-none transition focus:border-purple-600 focus:bg-white focus:ring-2 focus:ring-purple-100"
                   >
-                    <option value="gpt-4">GPT-4 (Best Quality)</option>
-                    <option value="gpt-3.5">GPT-3.5 (Fast)</option>
-                    <option value="gpt-4o">GPT-4o (Balanced)</option>
+                    <option value="gpt-4o-mini">gpt-4o-mini</option>
+                    <option value="llama-3.1-8b-instruct">llama-3.1-8b-instruct</option>
+                    <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+                    <option value="deepseek-chat">deepseek-chat</option>
+                    <option value="qwen2.5-7b-instruct">qwen2.5-7b-instruct</option>
+                    <option value="mistral-small">mistral-small</option>
                   </select>
                 </div>
 
