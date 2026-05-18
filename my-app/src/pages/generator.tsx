@@ -100,6 +100,7 @@ const GeneratorPage = () => {
         body: JSON.stringify({
           prompt: trimmedPrompt,
           length_priority: speedLength,
+          filename: filenameInput.trim() ? ensurePdfExtension(filenameInput.trim()) : '',
         }),
       });
 
