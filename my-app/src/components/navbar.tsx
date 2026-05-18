@@ -52,12 +52,6 @@ const Navbar = () => {
 
         <div className="hidden md:flex items-center gap-4">
           <Link
-            to="/login"
-            className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
-          >
-            Log in
-          </Link>
-          <Link
             to="/generate"
             className="px-5 py-2.5 bg-purple-600 text-white text-sm font-semibold rounded-full hover:bg-purple-700 transition-all active:scale-95 shadow-md shadow-purple-600/20"
           >
