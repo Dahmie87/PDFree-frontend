@@ -4,6 +4,15 @@ import { Link } from 'react-router-dom';
 import PatternBackdrop from '../components/pattern-backdrop';
 
 const AboutPage = () => {
+  const profile = {
+    name: 'Omotayo Damilare',
+    title: 'Lead AI Engerr',
+    website: 'https://www.omotayodamilare.me/',
+    github: 'https://github.com/Dahmie87',
+    projects: 'https://www.omotayodamilare.me/projects',
+    bio: `Software Engineer with a niche in AI. I engineer software with AI at the core combining full-stack development with large language models to build applications that are not just functional, but intelligent.`,
+  };
+
   return (
     <div className="relative min-h-screen bg-white pt-24 pb-16 overflow-hidden">
       <PatternBackdrop tone="light" />
@@ -159,9 +168,9 @@ const AboutPage = () => {
                 bio: "Former software engineer at Google. Frustrated with PDF tools, decided to build a better one.",
               },
               {
-                name: "Sam Rodriguez",
-                role: "Lead Engineer",
-                bio: "Full-stack developer passionate about open-source and user-first design.",
+                name: profile.name,
+                role: profile.title,
+                bio: profile.bio,
               },
               {
                 name: "Jordan Kim",
@@ -181,8 +190,42 @@ const AboutPage = () => {
                 <h3 className="text-lg font-bold text-slate-900">{member.name}</h3>
                 <p className="text-purple-600 font-semibold text-sm mb-3">{member.role}</p>
                 <p className="text-slate-600">{member.bio}</p>
+                {member.name === profile.name && (
+                  <div className="mt-4 flex justify-center gap-3">
+                    <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-sm text-purple-600 font-semibold">Portfolio</a>
+                    <a href={profile.projects} target="_blank" rel="noopener noreferrer" className="text-sm text-stone-700">Projects</a>
+                    <a href={profile.github} target="_blank" rel="noopener noreferrer" className="text-sm text-stone-700">GitHub</a>
+                  </div>
+                )}
               </motion.div>
             ))}
+          </div>
+        </motion.div>
+
+        {/* Testimonials Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="mb-20"
+        >
+          <h2 className="text-3xl font-bold text-slate-900 mb-8 text-center">What People Say</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6">
+              <p className="text-slate-700 mb-4">“Omotayo's AI-first approach turned our prototype into a production-ready feature in weeks. His LLM integrations are thoughtful and reliable.”</p>
+              <p className="text-sm font-semibold text-slate-900">— Product team lead</p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-6">
+              <p className="text-slate-700 mb-4">“Smart, pragmatic engineering. The project improved performance and user satisfaction after his contributions.”</p>
+              <p className="text-sm font-semibold text-slate-900">— User researcher</p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-6">
+              <p className="text-slate-700 mb-4">“Combines full-stack skill with deep model knowledge — ideal for building practical AI products.”</p>
+              <p className="text-sm font-semibold text-slate-900">— Open-source contributor</p>
+            </div>
           </div>
         </motion.div>
 
@@ -206,8 +249,9 @@ const AboutPage = () => {
               Start Using PDFree
             </Link>
             <a
-              href="#"
+              href={profile.github}
               className="px-8 py-4 border border-slate-300 text-slate-700 font-bold rounded-2xl hover:bg-slate-50 transition-all"
+              target="_blank" rel="noopener noreferrer"
             >
               Contribute on GitHub
             </a>
