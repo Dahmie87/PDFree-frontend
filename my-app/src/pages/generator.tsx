@@ -1,7 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, Loader, CheckCircle2, AlertCircle, Trash2, History, Settings, Scale, BookOpen, Cog, Sparkles, Brain, Palette } from 'lucide-react';
+import {
+  Download,
+  Loader,
+  CheckCircle2,
+  AlertCircle,
+  History,
+  Settings,
+  Scale,
+  BookOpen,
+  Cog,
+  Sparkles,
+  Palette,
+} from 'lucide-react';
 import PatternBackdrop from '../components/pattern-backdrop';
 
 interface GeneratedBook {
@@ -12,33 +24,14 @@ interface GeneratedBook {
   blob?: Blob;
 }
 
-interface Message {
-  id: string;
-  type: 'user' | 'agent';
-  content: string;
-  timestamp: number;
-}
-
-interface ThinkingStep {
-  id: string;
-  action: string;
-  status: 'pending' | 'in-progress' | 'completed';
-  duration?: number;
-}
-
 const API_BASE = import.meta.env.VITE_PDFREE_API_BASE_URL ?? 'http://localhost:8000';
 
 const GeneratorPage = () => {
   const [prompt, setPrompt] = useState('Write a comprehensive guide to machine learning');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [generatedBooks, setGeneratedBooks] = useState<GeneratedBook[]>([]);
   const [generationStage, setGenerationStage] = useState('');
-  
-  // Chat and thinking process
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [thinkingSteps, setThinkingSteps] = useState<ThinkingStep[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Error modal state
@@ -49,10 +42,13 @@ const GeneratorPage = () => {
 
   // Result modal state
   const [showResultModal, setShowResultModal] = useState(false);
-  const [resultData, setResultData] = useState<{ filename: string; objectUrl: string; success: boolean; message: string; title?: string } | null>(null);
-
-  // Custom PDF metadata (single optional filename + checkbox to use as title)
-  // `filenameInput` and `useFilenameAsTitle` declared above
+  const [resultData, setResultData] = useState<{
+    filename: string;
+    objectUrl: string;
+    success: boolean;
+    message: string;
+    title?: string;
+  } | null>(null);
 
   // Customization options
   const [model, setModel] = useState('gpt-4');
@@ -96,47 +92,9 @@ const GeneratorPage = () => {
 
     setIsGenerating(true);
     setError('');
-    setSuccess('');
-    setGenerationStage('Initializing book generation...');
-    
-    // Add user message to chat
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      type: 'user',
-      content: trimmedPrompt,
-      timestamp: Date.now(),
-    };
-    setMessages((prev) => [...prev, userMessage]);
-    
-    // Add thinking steps
-    const initialSteps: ThinkingStep[] = [
-      { id: '1', action: 'Analyzing your request and context', status: 'in-progress' },
-      { id: '2', action: 'Structuring book outline', status: 'pending' },
-      { id: '3', action: 'Generating table of contents', status: 'pending' },
-      { id: '4', action: 'Writing chapters and content', status: 'pending' },
-      { id: '5', action: 'Applying theme and styling', status: 'pending' },
-      { id: '6', action: 'Compiling PDF', status: 'pending' },
-    ];
-    setThinkingSteps(initialSteps);
+    setGenerationStage('Preparing outline');
 
     try {
-      // Simulate step progression
-      let currentStep = 0;
-      const stepInterval = setInterval(() => {
-        if (currentStep < initialSteps.length - 1) {
-          currentStep++;
-          setThinkingSteps((prev) =>
-            prev.map((step, idx) => {
-              if (idx === currentStep) return { ...step, status: 'in-progress' };
-              if (idx < currentStep) return { ...step, status: 'completed' };
-              return step;
-            })
-          );
-        } else {
-          clearInterval(stepInterval);
-        }
-      }, 2000);
-
       const response = await fetch(`${API_BASE}/generate-book`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -146,44 +104,31 @@ const GeneratorPage = () => {
         }),
       });
 
-      clearInterval(stepInterval);
-      
-      // Mark all steps as completed
-      setThinkingSteps((prev) =>
-        prev.map((step) => ({ ...step, status: 'completed' }))
-      );
-
       if (!response.ok) {
         let errorDetail = 'Generation failed.';
         try {
           const errorData = await response.json();
           errorDetail = errorData.detail || errorData.message || errorDetail;
         } catch {
-          errorDetail = response.status === 400
-            ? 'Prompt validation failed. Please enter a longer request.'
-            : errorDetail;
+          errorDetail =
+            response.status === 400
+              ? 'Prompt validation failed. Please enter a longer request.'
+              : errorDetail;
         }
         throw new Error(errorDetail);
       }
 
-      setGenerationStage('Finalizing your PDF...');
+      setGenerationStage('Compiling PDF');
 
       const pdfBlob = await response.blob();
       const objectUrl = window.URL.createObjectURL(pdfBlob);
       const filename = getFilenameFromDisposition(response.headers.get('content-disposition'));
       const finalFilename = filenameInput.trim() ? ensurePdfExtension(filenameInput.trim()) : filename;
-      const finalTitle = useFilenameAsTitle && filenameInput.trim() ? filenameInput.trim().replace(/\.pdf$/i, '') : '';
+      const finalTitle =
+        useFilenameAsTitle && filenameInput.trim()
+          ? filenameInput.trim().replace(/\.pdf$/i, '')
+          : '';
 
-      // Add agent message to chat
-      const agentMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'agent',
-        content: `✓ Generated "${finalFilename}" successfully!\n\nYour book has been created with ${mode} writing style using the ${theme} theme.`,
-        timestamp: Date.now(),
-      };
-      setMessages((prev) => [...prev, agentMessage]);
-
-      // Add to history
       const newBook: GeneratedBook = {
         id: Date.now().toString(),
         prompt: trimmedPrompt,
@@ -195,7 +140,6 @@ const GeneratorPage = () => {
       setGeneratedBooks(updatedBooks);
       localStorage.setItem('generatedBooks', JSON.stringify(updatedBooks));
 
-      // Show result modal with preview
       setResultData({
         filename: finalFilename,
         objectUrl,
@@ -207,19 +151,13 @@ const GeneratorPage = () => {
 
       setGenerationStage('');
       setPrompt('Write a comprehensive guide to machine learning');
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Generation failed.');
+    } catch (caughtError) {
+      setError(caughtError instanceof Error ? caughtError.message : 'Generation failed.');
       setGenerationStage('');
       setShowErrorModal(true);
     } finally {
       setIsGenerating(false);
     }
-  };
-
-  const deleteBook = (id: string) => {
-    const updatedBooks = generatedBooks.filter((b) => b.id !== id);
-    setGeneratedBooks(updatedBooks);
-    localStorage.setItem('generatedBooks', JSON.stringify(updatedBooks));
   };
 
   const formatDate = (timestamp: number) => {
@@ -228,308 +166,232 @@ const GeneratorPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-white pt-24 pb-16 overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-stone-50 via-purple-50/40 to-white pt-24 pb-16">
       <PatternBackdrop tone="light" />
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* Header */}
+
+        <div className="pointer-events-none absolute inset-0 -z-0">
+        <div className="absolute -top-24 -left-16 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
+        <div className="absolute top-1/3 -right-20 h-80 w-80 rounded-full bg-purple-200/40 blur-3xl" />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-7xl px-6">
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          transition={{ duration: 0.45 }}
+          className="mb-10"
         >
-          <h1 className="text-5xl font-bold text-slate-900 mb-4">Generate Your Book</h1>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            Turn your ideas into a beautiful, professionally formatted PDF book in seconds.
+          <p className="mb-3 inline-flex items-center rounded-full border border-purple-300/70 bg-purple-100/70 px-4 py-1 text-xs font-semibold tracking-wide text-purple-900">
+            PDFree Studio
+          </p>
+          <h1 className="mb-3 text-4xl font-black tracking-tight text-stone-900 md:text-5xl">
+            Generate your PDF book
+          </h1>
+          <p className="max-w-2xl text-base text-stone-600 md:text-lg">
+            One clean flow. Describe your idea, tweak settings, and download when done.
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Generator */}
+        <div className="grid gap-7 lg:grid-cols-3">
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.45, delay: 0.1 }}
             className="lg:col-span-2"
           >
-            <form onSubmit={handleGenerateBook} className="rounded-3xl p-8 border border-slate-200 bg-white shadow-md">
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">Book Details</h2>
+            <form
+              onSubmit={handleGenerateBook}
+              className="rounded-3xl border border-stone-200 bg-white/95 p-7 shadow-[0_12px_50px_-30px_rgba(41,37,36,0.45)] md:p-8"
+            >
+              <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+                <h2 className="text-2xl font-bold text-stone-900">Book setup</h2>
+                <span className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-semibold text-stone-600">
+                  Max 5000 chars
+                </span>
+              </div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-bold text-slate-700 mb-3">Customization</label>
-                <div className="grid grid-cols-2 gap-4 mb-6 md:grid-cols-1 lg:grid-cols-3">
-                  {/* Priority Selection */}
-                  <div>
-                    <label className="text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
-                      <Scale className="w-3 h-3" />
-                      Priority
-                    </label>
-                    <select
-                      value={speedLength}
-                      onChange={(e) => setSpeedLength(e.target.value)}
-                      className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
-                    >
-                      <option value="super fast" className="bg-white">Super Fast</option>
-                      <option value="fast" className="bg-white">Fast</option>
-                      <option value="balanced" className="bg-white">Balanced</option>
-                      <option value="length" className="bg-white">Length (Detail)</option>
-                    </select>
-                  </div>
-
-                  {/* Model Selection */}
-                  <div>
-                    <label className="text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
-                      <Settings className="w-3 h-3" />
-                      Model
-                    </label>
-                    <select
-                      value={model}
-                      onChange={(e) => setModel(e.target.value)}
-                      className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
-                    >
-                      <option value="gpt-4" className="bg-white">GPT-4 (Best Quality)</option>
-                      <option value="gpt-3.5" className="bg-white">GPT-3.5 (Fast)</option>
-                      <option value="gpt-4o" className="bg-white">GPT-4o (Balanced)</option>
-                    </select>
-                  </div>
-
-                  {/* Writing Mode */}
-                  <div>
-                    <label className="text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" />
-                      Writing Mode
-                    </label>
-                    <select
-                      value={mode}
-                      onChange={(e) => setMode(e.target.value)}
-                      className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
-                    >
-                      <option value="research" className="bg-white">Research (Formal)</option>
-                      <option value="technical" className="bg-white">Technical (Code Examples)</option>
-                      <option value="creative" className="bg-white">Creative (Storytelling)</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Filename (optional) and checkbox to use as title */}
-                <div className="mb-4">
-                  <label className="block text-xs font-bold text-slate-600 mb-2">Filename (optional)</label>
-                  <input
-                    value={filenameInput}
-                    onChange={(e) => setFilenameInput(e.target.value)}
-                    placeholder="my-book.pdf"
-                    className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
-                  />
-                  <label className="inline-flex items-center gap-2 mt-3 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={useFilenameAsTitle}
-                      onChange={(e) => setUseFilenameAsTitle(e.target.checked)}
-                      className="w-4 h-4 rounded border-slate-300"
-                    />
-                    <span className="text-slate-700">Use filename as PDF title</span>
+              <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div>
+                  <label className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-stone-600">
+                    <Scale className="h-3.5 w-3.5" />
+                    Priority
                   </label>
+                  <select
+                    value={speedLength}
+                    onChange={(e) => setSpeedLength(e.target.value)}
+                    className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-stone-800 outline-none transition focus:border-purple-600 focus:bg-white focus:ring-2 focus:ring-purple-100"
+                  >
+                    <option value="super fast">Super Fast</option>
+                    <option value="fast">Fast</option>
+                    <option value="balanced">Balanced</option>
+                    <option value="length">Length (Detail)</option>
+                  </select>
                 </div>
 
-                {/* Advanced Options Toggle */}
-                <button
-                  type="button"
-                  onClick={() => setShowAdvanced(!showAdvanced)}
-                  className="text-sm font-semibold text-purple-600 hover:text-purple-700 transition flex items-center gap-2 mb-4"
-                >
-                  {showAdvanced ? 'Hide' : 'Show'} More Options
-                </button>
+                <div>
+                  <label className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-stone-600">
+                    <Settings className="h-3.5 w-3.5" />
+                    Model
+                  </label>
+                  <select
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-stone-800 outline-none transition focus:border-purple-600 focus:bg-white focus:ring-2 focus:ring-purple-100"
+                  >
+                    <option value="gpt-4">GPT-4 (Best Quality)</option>
+                    <option value="gpt-3.5">GPT-3.5 (Fast)</option>
+                    <option value="gpt-4o">GPT-4o (Balanced)</option>
+                  </select>
+                </div>
 
-                {/* Advanced Customization */}
-                <AnimatePresence>
-                  {showAdvanced && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="grid grid-cols-2 gap-4 md:grid-cols-1 lg:grid-cols-3"
-                    >
-                      {/* Connect Your Model */}
-                      <div>
-                        <label className="text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
-                          <Cog className="w-3 h-3" />
-                          Connect Your Model
-                        </label>
-                        <select
-                          value={connectModel}
-                          onChange={(e) => setConnectModel(e.target.value)}
-                          className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
-                        >
-                          <option value="default">Default (PDFree)</option>
-                          <option value="custom-api">Custom API Key</option>
-                          <option value="enterprise">Enterprise</option>
-                        </select>
-                      </div>
-
-                      {/* Theme or Style */}
-                      <div>
-                        <label className="text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
-                          <Palette className="w-3 h-3" />
-                          Theme or Style
-                        </label>
-                        <select
-                          value={theme}
-                          onChange={(e) => setTheme(e.target.value)}
-                          className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
-                        >
-                          <option value="professional">Professional</option>
-                          <option value="minimal">Minimal</option>
-                          <option value="colorful">Colorful</option>
-                          <option value="academic">Academic</option>
-                        </select>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <div>
+                  <label className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-stone-600">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Writing Mode
+                  </label>
+                  <select
+                    value={mode}
+                    onChange={(e) => setMode(e.target.value)}
+                    className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-stone-800 outline-none transition focus:border-purple-600 focus:bg-white focus:ring-2 focus:ring-purple-100"
+                  >
+                    <option value="research">Research (Formal)</option>
+                    <option value="technical">Technical (Code Examples)</option>
+                    <option value="creative">Creative (Storytelling)</option>
+                  </select>
+                </div>
               </div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-bold text-slate-700 mb-3">Your Request</label>
-                <div className="flex gap-3">
-                  <textarea
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    rows={4}
-                    placeholder="Tell me what book you'd like to create..."
-                    className="flex-1 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-base text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+              <div className="mb-5 rounded-2xl border border-stone-200 bg-stone-50/70 p-4">
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-stone-600">
+                  Optional filename
+                </label>
+                <input
+                  value={filenameInput}
+                  onChange={(e) => setFilenameInput(e.target.value)}
+                  placeholder="my-book.pdf"
+                  className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 outline-none transition focus:border-purple-600 focus:ring-2 focus:ring-purple-100"
+                />
+                <label className="mt-3 inline-flex items-center gap-2 text-sm text-stone-700">
+                  <input
+                    type="checkbox"
+                    checked={useFilenameAsTitle}
+                    onChange={(e) => setUseFilenameAsTitle(e.target.checked)}
+                    className="h-4 w-4 rounded border-stone-300"
                   />
-                </div>
-                <p className="text-xs text-slate-500 mt-2">Minimum 5 characters • Max 5000 characters</p>
+                  Use filename as PDF title
+                </label>
               </div>
 
-              {/* Chat Conversation */}
-              {messages.length > 0 && (
-                <div className="mb-6 max-h-64 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
-                  <AnimatePresence>
-                    {messages.map((msg) => (
-                      <motion.div
-                        key={msg.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div
-                          className={`max-w-xs px-4 py-2 rounded-lg ${
-                            msg.type === 'user'
-                              ? 'bg-purple-600 text-white rounded-br-none'
-                              : 'bg-white border border-slate-200 text-slate-900 rounded-bl-none'
-                          }`}
-                        >
-                          <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
-              )}
+              <button
+                type="button"
+                onClick={() => setShowAdvanced((prev) => !prev)}
+                className="mb-4 text-sm font-semibold text-purple-700 transition hover:text-purple-900"
+              >
+                {showAdvanced ? 'Hide' : 'Show'} more options
+              </button>
 
-              {/* Thinking/Action Steps */}
-              {thinkingSteps.length > 0 && isGenerating && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-6 rounded-2xl p-6 border border-slate-200 bg-blue-50"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <Brain className="w-5 h-5 text-blue-600" />
-                    <h3 className="font-semibold text-slate-900">Agent Status</h3>
-                  </div>
-                  <div className="min-h-8 flex items-center">
-                    <AnimatePresence mode="wait">
-                      {thinkingSteps
-                        .filter((step) => step.status === 'in-progress')
-                        .map((step) => (
-                          <motion.div
-                            key={step.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className="flex items-center gap-3"
-                          >
-                            <Loader className="w-5 h-5 text-blue-600 animate-spin" />
-                            <span className="text-sm text-blue-700 font-medium">
-                              {step.action}...
-                            </span>
-                          </motion.div>
-                        ))}
-                    </AnimatePresence>
-                  </div>
-                </motion.div>
-              )}
+              <AnimatePresence>
+                {showAdvanced && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="mb-5 grid gap-4 sm:grid-cols-2"
+                  >
+                    <div>
+                      <label className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-stone-600">
+                        <Cog className="h-3.5 w-3.5" />
+                        Connect model
+                      </label>
+                      <select
+                        value={connectModel}
+                        onChange={(e) => setConnectModel(e.target.value)}
+                        className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-stone-800 outline-none transition focus:border-purple-600 focus:bg-white focus:ring-2 focus:ring-purple-100"
+                      >
+                        <option value="default">Default (PDFree)</option>
+                        <option value="custom-api">Custom API Key</option>
+                        <option value="enterprise">Enterprise</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-stone-600">
+                        <Palette className="h-3.5 w-3.5" />
+                        Theme or style
+                      </label>
+                      <select
+                        value={theme}
+                        onChange={(e) => setTheme(e.target.value)}
+                        className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-stone-800 outline-none transition focus:border-purple-600 focus:bg-white focus:ring-2 focus:ring-purple-100"
+                      >
+                        <option value="professional">Professional</option>
+                        <option value="minimal">Minimal</option>
+                        <option value="colorful">Colorful</option>
+                        <option value="academic">Academic</option>
+                      </select>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div className="mb-5">
+                <label className="mb-2 block text-sm font-bold text-stone-800">Your request</label>
+                <textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  rows={5}
+                  placeholder="Tell me what book you'd like to create..."
+                  className="w-full rounded-2xl border border-stone-200 bg-white px-5 py-4 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-purple-600 focus:ring-2 focus:ring-purple-100"
+                />
+                <p className="mt-2 text-xs text-stone-500">Minimum 5 characters</p>
+              </div>
 
               {isGenerating && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10 }}
+                  initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-6 rounded-2xl p-6 border border-blue-200 bg-blue-50"
+                  className="mb-6 rounded-2xl border border-purple-300 bg-purple-50 p-4"
                 >
-                  <div className="flex items-center gap-3 mb-4">
-                    <h3 className="font-semibold text-slate-900">Generating Your Book</h3>
-                  </div>
-                  {generationStage && (
-                    <p className="text-xs font-medium uppercase tracking-wide text-blue-700 mb-3">
-                      {generationStage}
+                  <div className="mb-3 flex items-center gap-2">
+                    <Loader className="h-4 w-4 animate-spin text-purple-600" />
+                    <p className="text-sm font-semibold text-purple-900">
+                      {generationStage || 'Generating your book'}
                     </p>
-                  )}
-                  <div className="w-full bg-blue-200 rounded-full h-2 border border-blue-300">
-                    <motion.div
-                      initial={{ width: '0%' }}
-                      animate={{ width: '85%' }}
-                      transition={{ duration: 8 }}
-                      className="bg-blue-600 h-2 rounded-full"
-                    />
                   </div>
-                  <p className="text-xs text-slate-600 mt-2">Processing your request...</p>
-                </motion.div>
-              )}
-
-              {success && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-6 flex items-start gap-3 rounded-2xl border border-green-200 bg-green-50 p-4"
-                >
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
-                  <p className="text-sm text-green-700">{success}</p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[0, 1, 2, 3].map((segment) => (
+                      <motion.div
+                        key={segment}
+                        className="h-1.5 rounded-full bg-purple-300"
+                        animate={{ opacity: [0.35, 1, 0.35] }}
+                        transition={{ duration: 1.1, repeat: Infinity, delay: segment * 0.18 }}
+                      />
+                    ))}
+                  </div>
                 </motion.div>
               )}
 
               <button
                 type="submit"
                 disabled={isGenerating}
-                className="w-full py-4 bg-purple-600 text-white font-bold rounded-2xl hover:bg-purple-700 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 hover:shadow-purple-600/40"
+                className="w-full rounded-2xl bg-stone-900 px-5 py-4 text-base font-bold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-55"
               >
-                {isGenerating ? (
-                  <>
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    Generate PDF Book
-                  </>
-                )}
+                {isGenerating ? 'Generating...' : 'Generate PDF Book'}
               </button>
             </form>
           </motion.div>
 
-          {/* Sidebar - History */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
+            initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.45, delay: 0.12 }}
             className="lg:col-span-1"
           >
-            <div className="rounded-3xl p-6 sticky top-32 border border-slate-200 bg-white shadow-md">
-              <div className="flex items-center gap-2 mb-6">
-                <History className="w-5 h-5 text-purple-600" />
-                <h3 className="text-xl font-bold text-slate-900">Generation History</h3>
+            <div className="sticky top-32 rounded-3xl border border-stone-200 bg-white/95 p-6 shadow-[0_12px_50px_-34px_rgba(41,37,36,0.55)]">
+              <div className="mb-5 flex items-center gap-2">
+                <History className="h-5 w-5 text-purple-700" />
+                <h3 className="text-xl font-bold text-stone-900">History</h3>
               </div>
 
               <AnimatePresence>
@@ -538,9 +400,9 @@ const GeneratorPage = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="text-sm text-slate-500 text-center py-8"
+                    className="rounded-xl border border-dashed border-stone-300 bg-stone-50 px-4 py-8 text-center text-sm text-stone-500"
                   >
-                    No books generated yet. Start creating!
+                    No books yet. Your next generation will appear here.
                   </motion.p>
                 ) : (
                   <div className="space-y-3">
@@ -550,31 +412,10 @@ const GeneratorPage = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="rounded-xl p-4 group hover:shadow-md transition-all border border-slate-200 bg-white hover:border-slate-300"
+                        className="rounded-xl border border-stone-200 bg-stone-50 p-3.5"
                       >
-                        <p className="text-xs font-bold text-slate-700 truncate mb-2">{book.filename}</p>
-                        <p className="text-xs text-slate-600 mb-3 line-clamp-2">{book.prompt}</p>
-                        <p className="text-xs text-slate-500 mb-3">{formatDate(book.timestamp)}</p>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => {
-                              const link = document.createElement('a');
-                              link.href = book.filename;
-                              link.download = book.filename;
-                              link.click();
-                            }}
-                            className="flex-1 flex items-center justify-center gap-1 bg-purple-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-purple-700 transition shadow-md shadow-purple-600/30"
-                          >
-                            <Download className="w-3 h-3" />
-                            Download
-                          </button>
-                          <button
-                            onClick={() => deleteBook(book.id)}
-                            className="flex items-center justify-center text-red-600 p-2 rounded-lg hover:bg-red-50 transition border border-red-200"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                        <p className="truncate text-sm font-semibold text-stone-800">{book.filename}</p>
+                        <p className="mt-1 text-xs text-stone-500">{formatDate(book.timestamp)}</p>
                       </motion.div>
                     ))}
                   </div>
@@ -584,7 +425,6 @@ const GeneratorPage = () => {
           </motion.div>
         </div>
 
-        {/* Result Modal */}
         <AnimatePresence>
           {showErrorModal && error && (
             <>
@@ -593,33 +433,33 @@ const GeneratorPage = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setShowErrorModal(false)}
-                className="fixed inset-0 bg-black/50 z-40"
+                className="fixed inset-0 z-40 bg-black/50"
               />
               <motion.div
-                initial={{ opacity: 0, scale: 0.92, y: 18 }}
+                initial={{ opacity: 0, scale: 0.95, y: 18 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.92, y: 18 }}
-                className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl z-50 max-w-lg w-full mx-4"
+                exit={{ opacity: 0, scale: 0.95, y: 18 }}
+                className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-3xl bg-white shadow-2xl mx-4"
               >
                 <div className="p-8">
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                      <AlertCircle className="w-6 h-6 text-red-600" />
+                  <div className="mb-5 flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                      <AlertCircle className="h-6 w-6 text-red-600" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold text-slate-900">Generation Failed</h2>
-                      <p className="text-sm text-slate-600 mt-1">Please review the backend response</p>
+                      <h2 className="text-2xl font-bold text-stone-900">Generation failed</h2>
+                      <p className="mt-1 text-sm text-stone-600">Please review the backend response</p>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-red-200 bg-red-50 p-4 mb-6">
-                    <p className="text-sm text-red-800 whitespace-pre-wrap">{error}</p>
+                  <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4">
+                    <p className="whitespace-pre-wrap text-sm text-red-800">{error}</p>
                   </div>
 
                   <div className="flex gap-3">
                     <button
                       onClick={() => setShowErrorModal(false)}
-                      className="flex-1 py-3 px-6 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-all"
+                      className="flex-1 rounded-xl bg-red-600 px-6 py-3 font-bold text-white transition hover:bg-red-700"
                     >
                       Dismiss
                     </button>
@@ -628,7 +468,7 @@ const GeneratorPage = () => {
                         setShowErrorModal(false);
                         setError('');
                       }}
-                      className="py-3 px-6 border border-slate-300 text-slate-900 font-bold rounded-xl hover:bg-slate-50 transition-all"
+                      className="rounded-xl border border-stone-300 px-6 py-3 font-bold text-stone-900 transition hover:bg-stone-50"
                     >
                       Clear
                     </button>
@@ -640,50 +480,44 @@ const GeneratorPage = () => {
 
           {showResultModal && resultData && (
             <>
-              {/* Backdrop */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setShowResultModal(false)}
-                className="fixed inset-0 bg-black/50 z-40"
+                className="fixed inset-0 z-40 bg-black/50"
               />
-              
-              {/* Modal */}
+
               <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                initial={{ opacity: 0, scale: 0.95, y: 18 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl z-50 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+                exit={{ opacity: 0, scale: 0.95, y: 18 }}
+                className="fixed left-1/2 top-1/2 z-50 max-h-[85vh] w-full max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl bg-white shadow-2xl mx-4"
               >
-                <div className="p-8">
-                  {/* Success Header */}
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                      <CheckCircle2 className="w-6 h-6 text-green-600" />
+                <div className="p-6 md:p-7">
+                  <div className="mb-5 flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-green-100">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold text-slate-900">Book Generated Successfully!</h2>
-                      <p className="text-sm text-slate-600 mt-1">{resultData.filename}</p>
+                      <h2 className="text-xl font-bold text-stone-900 md:text-2xl">Book generated</h2>
+                      <p className="mt-1 text-sm text-stone-600">{resultData.filename}</p>
                     </div>
                   </div>
 
-                  {/* Message */}
-                  <p className="text-slate-700 mb-6">{resultData.message}</p>
+                  <p className="mb-5 text-sm text-stone-700 md:text-base">{resultData.message}</p>
 
-                  {/* Preview Section */}
-                  <div className="mb-8">
-                    <h3 className="text-lg font-semibold text-slate-900 mb-4">Preview</h3>
-                    <div className="bg-slate-100 rounded-xl p-8 border-2 border-dashed border-slate-300 flex items-center justify-center h-96">
+                  <div className="mb-6">
+                    <h3 className="mb-3 text-lg font-semibold text-stone-900">Preview</h3>
+                    <div className="flex h-64 items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50 md:h-72">
                       <div className="text-center">
-                        <BookOpen className="w-16 h-16 text-slate-400 mx-auto mb-3" />
-                        <p className="text-slate-600 font-medium">PDF Preview</p>
-                        <p className="text-sm text-slate-500 mt-1">Your book is ready to download</p>
+                        <BookOpen className="mx-auto mb-3 h-12 w-12 text-stone-400 md:h-14 md:w-14" />
+                        <p className="font-medium text-stone-700">PDF ready to download</p>
+                        <p className="mt-1 text-sm text-stone-500">Open and review after download</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Actions */}
                   <div className="flex gap-3">
                     <button
                       onClick={() => {
@@ -692,14 +526,14 @@ const GeneratorPage = () => {
                         downloadLink.download = resultData.filename;
                         downloadLink.click();
                       }}
-                      className="flex-1 py-3 px-6 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30"
+                      className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-stone-900 px-6 py-3 font-bold text-white transition hover:bg-stone-800"
                     >
-                      <Download className="w-5 h-5" />
+                      <Download className="h-5 w-5" />
                       Download PDF
                     </button>
                     <button
                       onClick={() => setShowResultModal(false)}
-                      className="py-3 px-6 border border-slate-300 text-slate-900 font-bold rounded-xl hover:bg-slate-50 transition-all"
+                      className="rounded-xl border border-stone-300 px-6 py-3 font-bold text-stone-900 transition hover:bg-stone-50"
                     >
                       Close
                     </button>
@@ -713,6 +547,5 @@ const GeneratorPage = () => {
     </div>
   );
 };
-
 
 export default GeneratorPage;
